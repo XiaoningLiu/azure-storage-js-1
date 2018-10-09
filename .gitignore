@@ -56,7 +56,10 @@ typings/
 /blob/typings/
 /blob/browser/
 /blob/dist-*/
-
+/adls/dist/
+/adls/typings/
+/adls/browser/
+/adls/dist-*/
 # Visual Studio Code
 .vscode/
 
