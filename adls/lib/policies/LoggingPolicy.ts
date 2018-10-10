@@ -71,7 +71,9 @@ export class LoggingPolicy extends BaseRequestPolicy {
     }
     this.log(
       HttpPipelineLogLevel.INFO,
-      `'${safeURL}'==> OUTGOING REQUEST (Try number=${this.tryCount}).`
+      `${request.method} '${safeURL}'==> OUTGOING REQUEST (Try number=${
+        this.tryCount
+      }).`
     );
 
     try {

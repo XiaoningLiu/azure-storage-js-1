@@ -1,6 +1,4 @@
-# Azure Storage SDK V10 for JavaScript - Blob
-
-[![npm version](https://badge.fury.io/js/%40azure%2Fstorage-blob.svg)](https://badge.fury.io/js/%40azure%2Fstorage-blob)
+# Azure Storage SDK V10 for JavaScript - ADLS
 
 ## Introduction
 

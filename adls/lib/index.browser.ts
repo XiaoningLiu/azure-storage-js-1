@@ -1,6 +1,6 @@
 import { RestError } from "ms-rest-js";
 
-import * as Models from "../lib/generated/models";
+import * as Models from "../lib/generated/lib/models";
 
 export * from "./Aborter";
 export * from "./FileSystemURL";
@@ -17,4 +17,5 @@ export * from "./policies/TokenCredentialPolicy";
 export * from "./UniqueRequestIDPolicyFactory";
 export * from "./ServiceURL";
 export * from "./StorageURL";
+export * from "./PathURL";
 export { Models, RestError };

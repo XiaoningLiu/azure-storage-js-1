@@ -81,6 +81,25 @@ export function getURLStorageAccount(url: string): string | undefined {
 }
 
 /**
+ * Get the url path components from an URL string.
+ *
+ * For example, url "https://myaccount.dfs.core.windows.net/myfilesystem/directory/file" will return
+ * ["myfilesystem", "directory", "file"]
+ *
+ * @export
+ * @param {string} url Source URL string
+ * @returns {string[]}
+ */
+export function getURLPathComponents(url: string): string[] {
+  const urlPath = getURLPath(url);
+  if (!urlPath) {
+    throw new RangeError(`Invalid url "${url}", file system is undefined.`);
+  }
+
+  return urlPath.split("/").filter(word => word.length > 0);
+}
+
+/**
  * Set URL host.
  *
  * @export

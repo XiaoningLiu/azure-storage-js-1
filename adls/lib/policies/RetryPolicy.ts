@@ -184,7 +184,7 @@ export class RetryPolicy extends BaseRequestPolicy {
     newRequest.url = setURLParameter(
       newRequest.url,
       URLConstants.Parameters.TIMEOUT,
-      this.retryOptions.tryTimeoutInMs!.toString()
+      (this.retryOptions.tryTimeoutInMs! / 1000).toString()
     );
 
     let response: HttpOperationResponse | undefined;

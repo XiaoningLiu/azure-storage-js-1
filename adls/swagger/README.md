@@ -3,7 +3,7 @@
 > see https://aka.ms/autorest
 
 ```yaml
-package-name: azure-storage-blob
+package-name: azure-storage-adls
 title: StorageClient
 description: Storage Client
 enable-xml: true

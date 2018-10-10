@@ -2,7 +2,7 @@ import { deserializationPolicy, RequestPolicyFactory } from "ms-rest-js";
 
 import { BrowserPolicyFactory } from "./BrowserPolicyFactory";
 import { Credential } from "./credentials/Credential";
-import { DataLakeStorageClientContext } from "./generated/dataLakeStorageClientContext";
+import { DataLakeStorageClientContext } from "./generated/lib/dataLakeStorageClientContext";
 import { LoggingPolicyFactory } from "./LoggingPolicyFactory";
 import { IHTTPClient, IHTTPPipelineLogger, Pipeline } from "./Pipeline";
 import { IRetryOptions, RetryPolicyFactory } from "./RetryPolicyFactory";
@@ -84,7 +84,7 @@ export abstract class StorageURL {
   public readonly pipeline: Pipeline;
 
   /**
-   * URL string value.
+   * Readonly. URL string value.
    *
    * @type {string}
    * @memberof StorageURL

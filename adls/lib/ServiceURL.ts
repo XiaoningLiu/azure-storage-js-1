@@ -1,12 +1,12 @@
-import * as Models from "../lib/generated/models";
+import * as Models from "../lib/generated/lib/models";
 import { Aborter } from "./Aborter";
-import { FilesystemOperations } from "./generated/operations";
+import { FilesystemOperations } from "./generated/lib/operations";
 import { Pipeline } from "./Pipeline";
 import { StorageURL } from "./StorageURL";
 
 /**
- * A ServiceURL represents a URL to the Azure Storage Blob service allowing you
- * to manipulate blob containers.
+ * A ServiceURL represents a URL to the Azure Storage ADLS service allowing you
+ * to manipulate ADLS service.
  *
  * @export
  * @class ServiceURL
