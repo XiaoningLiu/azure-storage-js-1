@@ -44,6 +44,21 @@ export function setURLParameter(
 }
 
 /**
+ * Set URL path. If path exists in URL, old value
+ * will be replaced. If not provide value, the old path will be deleted.
+ *
+ * @export
+ * @param {string} url Source URL string
+ * @param {string} [path] Path value
+ * @returns {string} An updated URL string
+ */
+export function setURLPath(url: string, path?: string): string {
+  const urlParsed = URLBuilder.parse(url);
+  urlParsed.setPath(path);
+  return urlParsed.toString();
+}
+
+/**
  * Get URL parameter by name.
  *
  * @export
@@ -93,7 +108,7 @@ export function getURLStorageAccount(url: string): string | undefined {
 export function getURLPathComponents(url: string): string[] {
   const urlPath = getURLPath(url);
   if (!urlPath) {
-    throw new RangeError(`Invalid url "${url}", file system is undefined.`);
+    return [];
   }
 
   return urlPath.split("/").filter(word => word.length > 0);

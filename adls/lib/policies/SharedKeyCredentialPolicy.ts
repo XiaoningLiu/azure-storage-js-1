@@ -1,7 +1,12 @@
 import { RequestPolicy, RequestPolicyOptions, WebResource } from "ms-rest-js";
 import { SharedKeyCredential } from "../credentials/SharedKeyCredential";
 import { HeaderConstants } from "../utils/constants";
-import { getURLPath, getURLQueries } from "../utils/utils.common";
+import {
+  getURLPath,
+  getURLPathComponents,
+  getURLQueries,
+  setURLPath
+} from "../utils/utils.common";
 import { CredentialPolicy } from "./CredentialPolicy";
 
 /**
@@ -45,6 +50,21 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
    * @memberof SharedKeyCredentialPolicy
    */
   protected signRequest(request: WebResource): WebResource {
+    // By default, dfs swagger and autorest auto generated code will call encodeURIcomponent to encode the path
+    // however, double URI encoding will lead to 403 auth error ( "/" -> "%2F" => "%252F")
+    // One solution is to add ""x-ms-skip-url-encoding": true" to the "path" parameter in the swagger
+    // Following workaround is to decode first before encode to avoid the double URI encode issue
+    const urlPathComponents = getURLPathComponents(request.url);
+    if (urlPathComponents.length > 1) {
+      const decodedPath = [
+        urlPathComponents[0],
+        decodeURIComponent(urlPathComponents.slice(1).join("/"))
+      ]
+        .filter(word => word.length > 0)
+        .join("/");
+      request.url = setURLPath(request.url, decodedPath);
+    }
+
     request.headers.set(HeaderConstants.X_MS_DATE, new Date().toUTCString());
 
     if (
@@ -176,7 +196,15 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
    * @memberof SharedKeyCredentialPolicy
    */
   private getCanonicalizedResourceString(request: WebResource): string {
+    // console.log(
+    //   `[getCanonicalizedResourceString(), urlPathBeforeEncode]: ${getURLPath(
+    //     request.url
+    //   )}`
+    // );
     const path = encodeURI(getURLPath(request.url) || "/");
+    // console.log(
+    //   `[getCanonicalizedResourceString(), urlPathafterEncode]: ${path}`
+    // );
 
     let canonicalizedResourceString: string = "";
     canonicalizedResourceString += `/${this.factory.accountName}${path}`;

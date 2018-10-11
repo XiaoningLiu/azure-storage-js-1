@@ -18,4 +18,5 @@ export * from "./UniqueRequestIDPolicyFactory";
 export * from "./ServiceURL";
 export * from "./StorageURL";
 export * from "./PathURL";
+export * from "./highlevel.common";
 export { Models, RestError };

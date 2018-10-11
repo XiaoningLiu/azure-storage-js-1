@@ -298,6 +298,16 @@ export interface IPathCreateOptions {
 
 export interface IPathUpdateOptions {
   /**
+   * Required for "Append Data" and "Flush
+   * Data".  Must be 0 for "Flush Data".  Must be the length of the request
+   * content in bytes for "Append Data".
+   *
+   * @type {string}
+   * @memberof IPathUpdateOptions
+   */
+  contentLength?: string;
+
+  /**
    * This parameter allows the caller to upload
    * data in parallel and control the order in which it is appended to the
    * file. It is required when uploading data to be appended to the file and
@@ -444,9 +454,6 @@ export interface IPathUpdateOptions {
    * @memberof IPathUpdateOptions
    */
   xMsPermissions?: string;
-  /**
-   * @member {string} [xMsAcl]
-   */
 
   /**
    * Optional and valid only for the setAccessControl
@@ -879,15 +886,15 @@ export class PathURL extends StorageURL {
   }
 
   /**
-   * Creates a new ServiceURL object identical to the source but with the
+   * Creates a new PathURL object identical to the source but with the
    * specified request policy pipeline.
    *
    * @param {Pipeline} pipeline
-   * @returns {ServiceURL}
-   * @memberof ServiceURL
+   * @returns {PathURL}
+   * @memberof PathURL
    */
-  public withPipeline(pipeline: Pipeline): FileSystemURL {
-    return new FileSystemURL(this.url, pipeline);
+  public withPipeline(pipeline: Pipeline): PathURL {
+    return new PathURL(this.url, pipeline);
   }
 
   /**
@@ -955,7 +962,6 @@ export class PathURL extends StorageURL {
       this.path,
       {
         abortSignal: aborter,
-        contentLength: "0",
         ...options
       }
     );
@@ -1027,6 +1033,8 @@ export class PathURL extends StorageURL {
   /**
    * Get the properties for a file or directory, and optionally include the access control list.
    * This operation supports conditional HTTP requests.
+   *
+   * @summary Get Properties | Get Access Control List
    *
    * @see https://docs.microsoft.com/en-us/rest/api/storageservices/datalakestoragegen2/path/getproperties
    *

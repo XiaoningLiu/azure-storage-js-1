@@ -11,7 +11,7 @@
 import * as msRest from "ms-rest-js";
 import * as Models from "./models";
 
-const packageName = "azure-storage-blob";
+const packageName = "azure-storage-adls";
 const packageVersion = "1.0.0";
 
 export class DataLakeStorageClientContext extends msRest.ServiceClient {
