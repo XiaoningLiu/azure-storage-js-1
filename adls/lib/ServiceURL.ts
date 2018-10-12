@@ -24,9 +24,9 @@ export class ServiceURL extends StorageURL {
 
   /**
    * Creates an instance of ServiceURL.
-   * @param {string} url A URL string pointing to Azure Storage blob service, such as
-   *                     "https://myaccount.blob.core.windows.net". You can Append a SAS
-   *                     if using AnonymousCredential, such as "https://myaccount.blob.core.windows.net?sasString".
+   * @param {string} url A URL string pointing to Azure Storage ADLS service, such as
+   *                     "https://myaccount.dfs.core.windows.net". You can Append a SAS
+   *                     if using AnonymousCredential, such as "https://myaccount.dfs.core.windows.net?sasString".
    * @param {Pipeline} pipeline Call StorageURL.newPipeline() to create a default
    *                            pipeline, or provide a customized pipeline.
    * @memberof ServiceURL

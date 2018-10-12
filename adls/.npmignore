@@ -1,5 +1,4 @@
 # browser #
-browser/azure-storage.blob.js
 
 # dist-esm #
 !dist-esm/lib/**/*.js

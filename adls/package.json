@@ -66,7 +66,7 @@
   "keywords": [
     "Azure",
     "Storage",
-    "Blob",
+    "ADLSv2",
     "Node.js",
     "TypeScript",
     "JavaScript",

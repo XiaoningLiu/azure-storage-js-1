@@ -51,13 +51,13 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
    */
   protected signRequest(request: WebResource): WebResource {
     // By default, dfs swagger and autorest auto generated code will call encodeURIcomponent to encode the path
-    // however, double URI encoding will lead to 403 auth error ( "/" -> "%2F" => "%252F")
+    // however, double URI encoding will lead to 403 auth error ( "/" -> "%2F" => "%252F", "$" -> "%24" -> "%2524")
     // One solution is to add ""x-ms-skip-url-encoding": true" to the "path" parameter in the swagger
     // Following workaround is to decode first before encode to avoid the double URI encode issue
     const urlPathComponents = getURLPathComponents(request.url);
-    if (urlPathComponents.length > 1) {
+    if (urlPathComponents.length > 0) {
       const decodedPath = [
-        urlPathComponents[0],
+        decodeURIComponent(urlPathComponents[0]),
         decodeURIComponent(urlPathComponents.slice(1).join("/"))
       ]
         .filter(word => word.length > 0)

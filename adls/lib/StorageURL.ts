@@ -12,7 +12,7 @@ import {
 } from "./TelemetryPolicyFactory";
 import { UniqueRequestIDPolicyFactory } from "./UniqueRequestIDPolicyFactory";
 import { SERVICE_VERSION } from "./utils/constants";
-import { getURLStorageAccount } from "./utils/utils.common";
+import { getURLBaseURI } from "./utils/utils.common";
 
 export { deserializationPolicy };
 
@@ -111,17 +111,13 @@ export abstract class StorageURL {
     this.url = url;
     this.pipeline = pipeline;
 
-    const storageAccount = getURLStorageAccount(url);
-    if (!storageAccount) {
-      throw new RangeError(`Invalid url ${url}`);
-    }
+    this.storageClientContext = new DataLakeStorageClientContext("", {
+      ...pipeline.toServiceClientOptions(),
+      xMsVersion: SERVICE_VERSION
+    });
 
-    this.storageClientContext = new DataLakeStorageClientContext(
-      storageAccount,
-      {
-        ...pipeline.toServiceClientOptions(),
-        xMsVersion: SERVICE_VERSION
-      }
-    );
+    // Fully control the url in the convenience layer by injecting baseUri property
+    const storageClientContext = this.storageClientContext as any;
+    storageClientContext.baseUri = getURLBaseURI(this.url);
   }
 }

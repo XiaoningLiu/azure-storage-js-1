@@ -1,4 +1,4 @@
-# Azure Storage SDK V10 for JavaScript - ADLS
+# Azure Storage SDK V10 for JavaScript - Azure Date Lake Storage Gen2 (ADLSv2)
 
 ## Introduction
 
@@ -8,12 +8,10 @@ Please note that this version of the SDK is a compete overhaul of the current [A
 
 ### Features
 
-* Blob Storage
-  * Get/Set Blob Service Properties
-  * Create/List/Delete Containers
-  * Create/Read/List/Update/Delete Block Blobs
-  * Create/Read/List/Update/Delete Page Blobs
-  * Create/Read/List/Update/Delete Append Blobs
+* ADLS Gen2 Storage
+  * Create/List/Delete File Systems
+  * Create/List/Update/Delete Directories
+  * Create/Read/List/Update/Delete Files
 * Features new
   * Asynchronous I/O for all operations using the async methods
   * HttpPipeline which enables a high degree of per-request configurability
@@ -21,221 +19,49 @@ Please note that this version of the SDK is a compete overhaul of the current [A
 
 ### Compatibility
 
-This SDK is compatible with Node.js and browsers, and validated against LTS Node.js versions (>=6.5) and latest versions of Chrome, Firefox and Edge.
-
-#### Compatible with IE11
-
-You need polyfills to make this library work with IE11. The easiest way is to use [@babel/polyfill](https://babeljs.io/docs/en/babel-polyfill), or [polyfill service](https://polyfill.io/v2/docs/).
-Or you can load separate polyfills for missed ES feature(s).
-This library depends on following ES6 features which need external polyfills loaded.
-
-* `Promise`
-* `String.prototype.startsWith`
-* `String.prototype.endsWith`
-* `String.prototype.repeat`
-* `String.prototype.includes`
-
-#### Differences between Node.js and browsers
-
-There are differences between Node.js and browsers runtime. When getting start with this SDK, pay attention to APIs or classes marked with *"ONLY AVAILABLE IN NODE.JS RUNTIME"* or *"ONLY AVAILABLE IN BROWSERS"*.
-
-##### Following features, interfaces, classes or functions are only available in Node.js
-
-* Shared Key Authorization based on account name and account key
-  * `SharedKeyCredential`
-* Shared Access Signature(SAS) generation
-  * `generateAccountSASQueryParameters()`
-  * `generateBlobSASQueryParameters()`
-* Parallel uploading and downloading
-  * `uploadFileToBlockBlob()`
-  * `uploadStreamToBlockBlob()`
-  * `downloadBlobToBuffer()`
-
-##### Following features, interfaces, classes or functions are only available in browsers
-
-* Parallel uploading and downloading
-  * `uploadBrowserDataToBlockBlob()`
+This SDK is compatible with Node.js, and validated against LTS Node.js versions (>=6.5).
 
 ## Getting Started
 
-### NPM
-
-The preferred way to install the Azure Storage SDK for JavaScript is to use the npm package manager. Simply type the following into a terminal window:
+Download and build source code:
 
 ```bash
-npm install @azure/storage-blob
+git clone https://github.com/xiaoningliu/azure-storage-js-1
+cd azure-storage-js-1/adls
+npm install
+```
+
+In your project's package.json, add this package as a dependency:
+
+```json
+dependencies: {
+  "@azure/storage-adls": "<path to azure-storage-js-1/adls>"
+}
 ```
 
 In your TypeScript or JavaScript file, import via following:
 
 ```JavaScript
-import * as Azure from "@azure/storage-blob";
+import * as Azure from "@azure/storage-adls";
 ```
 
 Or
 
 ```JavaScript
-const Azure = require("@azure/storage-blob");
+const Azure = require("@azure/storage-adls");
 ```
-
-### JavaScript Bundle
-
-To use the SDK with JS bundle in the browsers, simply add a script tag to your HTML pages pointing to the downloaded JS bundle file(s):
-
-```html
-<script src="https://mydomain/azure-storage.blob.min.js"></script>
-```
-
-The JS bundled file is compatible with [UMD](https://github.com/umdjs/umd) standard, if no module system found, following global variable(s) will be exported:
-
-* `azblob`
-
-#### Download
-
-Download latest released JS bundles from links in the [GitHub release page](https://github.com/Azure/azure-storage-js/releases). Or from following links directly:
-
-* Blob [https://aka.ms/downloadazurestoragejsblob](https://aka.ms/downloadazurestoragejsblob)
-
-### CORS
-
-You need to set up [Cross-Origin Resource Sharing (CORS)](https://docs.microsoft.com/zh-cn/rest/api/storageservices/cross-origin-resource-sharing--cors--support-for-the-azure-storage-services) rules for your storage account if you need to develop for browsers. Go to Azure portal and Azure Storage Explorer, find your storage account, create new CORS rules for blob/queue/file/table service(s).
-
-For example, you can create following CORS settings for debugging. But please customize the settings carefully according to your requirements in production environment.
-
-* Allowed origins: *
-* Allowed verbs: DELETE,GET,HEAD,MERGE,POST,OPTIONS,PUT
-* Allowed headers: *
-* Exposed headers: *
-* Maximum age (seconds): 86400
 
 ## SDK Architecture
 
 The Azure Storage SDK for JavaScript provides low-level and high-level APIs.
 
-* ServiceURL, ContainerURL and BlobURL objects provide the low-level API functionality and map one-to-one to the [Azure Storage Blob REST APIs](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api).
+* ServiceURL, FileSystemURL and PathURL objects provide the low-level API functionality and map one-to-one to the [Azure Storage ADLS Gen2 REST APIs](https://docs.microsoft.com/en-us/rest/api/storageservices/data-lake-storage-gen2).
 
-* The high-level APIs provide convenience abstractions such as uploading a large stream to a block blob (using multiple PutBlock requests).
+* The high-level APIs provide convenience abstractions such as uploading a large local file.
 
 ## Code Samples
 
-```javascript
-const {
-  Aborter,
-  BlobURL,
-  BlockBlobURL,
-  ContainerURL,
-  ServiceURL,
-  StorageURL,
-  SharedKeyCredential,
-  AnonymousCredential,
-  TokenCredential
-} = require("@azure/storage-blob");
-
-async function main() {
-  // Enter your storage account name and shared key
-  const account = "account";
-  const accountKey = "accountkey";
-
-  // Use SharedKeyCredential with storage account and account key
-  const sharedKeyCredential = new SharedKeyCredential(account, accountKey);
-
-  // Use TokenCredential with OAuth token
-  const tokenCredential = new TokenCredential("token");
-  tokenCredential.token = "renewedToken";
-
-  // Use AnonymousCredential when url already includes a SAS signature
-  const anonymousCredential = new AnonymousCredential();
-
-  // Use sharedKeyCredential, tokenCredential or tokenCredential to create a pipeline
-  const pipeline = StorageURL.newPipeline(sharedKeyCredential);
-
-  // List containers
-  const serviceURL = new ServiceURL(
-    // When using AnonymousCredential, following url should include a valid SAS or support public access
-    `https://${account}.blob.core.windows.net`,
-    pipeline
-  );
-
-  let marker;
-  do {
-    const listContainersResponse = await serviceURL.listContainersSegment(
-      Aborter.none,
-      marker
-    );
-
-    marker = listContainersResponse.marker;
-    for (const container of listContainersResponse.containerItems) {
-      console.log(`Container: ${container.name}`);
-    }
-  } while (marker);
-
-  // Create a container
-  const containerName = `newcontainer${new Date().getTime()}`;
-  const containerURL = ContainerURL.fromServiceURL(serviceURL, containerName);
-
-  const createContainerResponse = await containerURL.create(Aborter.none);
-  console.log(
-    `Create container ${containerName} successfully`,
-    createContainerResponse.requestId
-  );
-
-  // Create a blob
-  const content = "hello";
-  const blobName = "newblob" + new Date().getTime();
-  const blobURL = BlobURL.fromContainerURL(containerURL, blobName);
-  const blockBlobURL = BlockBlobURL.fromBlobURL(blobURL);
-  const uploadBlobResponse = await blockBlobURL.upload(
-    Aborter.none,
-    content,
-    content.length
-  );
-  console.log(
-    `Upload block blob ${blobName} successfully`,
-    uploadBlobResponse.requestId
-  );
-
-  // List blobs
-  do {
-    const listBlobsResponse = await containerURL.listBlobFlatSegment(
-      Aborter.none,
-      marker
-    );
-
-    marker = listBlobsResponse.marker;
-    for (const blob of listBlobsResponse.segment.blobItems) {
-      console.log(`Blob: ${blob.name}`);
-    }
-  } while (marker);
-
-  // Get blob content from position 0 to the end
-  // In Node.js, get downloaded data by accessing downloadBlockBlobResponse.readableStreamBody
-  // In browsers, get downloaded data by accessing downloadBlockBlobResponse.blobBody
-  const downloadBlockBlobResponse = await blobURL.download(Aborter.none, 0);
-  console.log(
-    "Downloaded blob content",
-    downloadBlockBlobResponse.readableStreamBody.read(content.length).toString()
-  );
-
-  // Delete container
-  await containerURL.delete(Aborter.none);
-
-  console.log("deleted container");
-}
-
-// An async method returns a Promise object, which is compatible with then().catch() coding style.
-main()
-  .then(() => {
-    console.log("Successfully executed sample.");
-  })
-  .catch(err => {
-    console.log(err.message);
-  });
-```
-
-## More Code Samples
-
-* [Blob Storage Examples](https://github.com/azure/azure-storage-js/tree/master/blob/samples)
-* [Blob Storage Examples - Test Cases](https://github.com/azure/azure-storage-js/tree/master/blob/test/)
+* [ADLS Gen2 Storage Examples](https://github.com/XiaoningLiu/azure-storage-js-1/tree/adls/adls/samples)
 
 ## License
 

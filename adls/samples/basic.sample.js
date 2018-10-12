@@ -8,6 +8,7 @@ const path = require("path");
 const {
   Aborter,
   SharedKeyCredential,
+  TokenCredential,
   ServiceURL,
   StorageURL,
   PathURL,
@@ -17,7 +18,7 @@ const {
 } = require("..");
 
 async function main() {
-  // Enter your storage account name and shared key
+  // Enter your storage account name and shared key before running this sample
   const account = "";
   const accountKey = "";
   const localFilePath = "";
@@ -25,7 +26,9 @@ async function main() {
   // Use SharedKeyCredential with storage account and account key
   const sharedKeyCredential = new SharedKeyCredential(account, accountKey);
 
-  // Use sharedKeyCredential, tokenCredential or tokenCredential to create a pipeline
+  const tokenCredential = new TokenCredential("oauthToken");
+
+  // Use sharedKeyCredential or tokenCredential to create a pipeline
   const pipeline = StorageURL.newPipeline(sharedKeyCredential, {
     logger: {
       minimumLogLevel: 1,
@@ -36,7 +39,6 @@ async function main() {
   });
 
   const serviceURL = new ServiceURL(
-    // When using AnonymousCredential, following url should include a valid SAS or support public access
     `https://${account}.dfs.core.windows.net`,
     pipeline
   );
@@ -84,8 +86,8 @@ async function main() {
         fileSystem.name
       );
 
-      // const properties = await filesystemURL.getProperties(Aborter.none);
-      // console.log(`=====> properties: ${JSON.stringify(properties)}\n`);
+      const properties = await filesystemURL.getProperties(Aborter.none);
+      console.log(`=====> properties: ${JSON.stringify(properties)}\n`);
     }
   } while (marker);
 
@@ -158,11 +160,15 @@ async function main() {
       .toString()}\n`
   );
 
-  // Upload local file parallel
+  // Upload local file parallel (highlevel API, STILL UNDER DEVELOPEMENT)
+  /*
   const localFileName = path.basename(localFilePath);
   const fullPath = `${destDirectoryName}/${localFileName}`;
   const fileURL2 = PathURL.fromFileSystemURL(fileSystemURL, fullPath);
   console.log(`# Upload local file: ${localFilePath} to ${fileURL2.url}`);
+  await fileURL2.create(Aborter.none, {
+    resource: Models.PathResourceType.File
+  });
   await uploadFile(Aborter.none, localFilePath, fileURL2, {
     blockSize: 4 * 1024 * 1024,
     parallelism: 100,
@@ -189,17 +195,21 @@ async function main() {
       downloadResponse.readableStreamBody.pipe(ws);
     });
   })();
+  */
 
   // List paths
   console.log("# List paths\n");
-  const listPathsResult = await fileSystemURL.listPaths(Aborter.none, true);
+  const listPathsResult = await fileSystemURL.listPathsSegment(
+    Aborter.none,
+    true
+  );
   for (const path of listPathsResult.paths) {
     console.log(`Path: ${path.name} ${JSON.stringify(path)}\n`);
   }
 
   // Delete directory
   console.log("# Delete directory\n");
-  await destDirectoryURL.delete(Aborter.none);
+  await destDirectoryURL.delete(Aborter.none, { recursive: true });
 
   // Delete File System
   console.log("# Delete filesystem\n");

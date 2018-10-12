@@ -101,7 +101,7 @@ export interface IFileSystemListPathsOptions {
  * to manipulate file systems.
  *
  * @export
- * @class ServiceURL
+ * @class FileSystemURL
  * @extends {StorageURL}
  */
 export class FileSystemURL extends StorageURL {
@@ -133,7 +133,7 @@ export class FileSystemURL extends StorageURL {
    *
    * @private
    * @type {Service}
-   * @memberof ServiceURL
+   * @memberof FileSystemURL
    */
   private readonly fileSystemOperationsContext: FilesystemOperations;
 
@@ -147,12 +147,13 @@ export class FileSystemURL extends StorageURL {
   private readonly pathOperationsContext: PathOperations;
 
   /**
-   * Creates an instance of ServiceURL.
-   * @param {string} url A URL string pointing to Azure Storage blob service, such as
+   * Creates an instance of FileSystemURL.
+   *
+   * @param {string} url A URL string pointing to Azure Storage ADLS service, such as
    *                     "http://myaccount.dfs.core.windows.net".
    * @param {Pipeline} pipeline Call StorageURL.newPipeline() to create a default
    *                            pipeline, or provide a customized pipeline.
-   * @memberof ServiceURL
+   * @memberof FileSystemURL
    */
   constructor(url: string, pipeline: Pipeline) {
     super(url, pipeline);
@@ -171,12 +172,12 @@ export class FileSystemURL extends StorageURL {
   }
 
   /**
-   * Creates a new ServiceURL object identical to the source but with the
+   * Creates a new FileSystemURL object identical to the source but with the
    * specified request policy pipeline.
    *
    * @param {Pipeline} pipeline
-   * @returns {ServiceURL}
-   * @memberof ServiceURL
+   * @returns {FileSystemURL}
+   * @memberof FileSystemURL
    */
   public withPipeline(pipeline: Pipeline): FileSystemURL {
     return new FileSystemURL(this.url, pipeline);
@@ -237,7 +238,7 @@ export class FileSystemURL extends StorageURL {
    * @param {Aborter} aborter Create a new Aborter instance with Aborter.none or Aborter.timeout(),
    *                          goto documents of Aborter for more examples about request cancellation
    * @returns {Promise<Models.FilesystemGetPropertiesResponse>}
-   * @memberof ServiceURL
+   * @memberof FileSystemURL
    */
   public async getProperties(
     aborter: Aborter
@@ -290,7 +291,7 @@ export class FileSystemURL extends StorageURL {
    * @returns {Promise<Models.PathListResponse>}
    * @memberof FileSystemURL
    */
-  public async listPaths(
+  public async listPathsSegment(
     aborter: Aborter,
     recursive: boolean,
     options: IFileSystemListPathsOptions = {}

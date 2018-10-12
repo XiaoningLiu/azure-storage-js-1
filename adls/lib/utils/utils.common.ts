@@ -75,6 +75,30 @@ export function getURLParameter(
 }
 
 /**
+ * Get base URI from a URL.
+ *
+ * For example, "https://example.com:8080/dir/path?p1=v1", will return
+ * "https://example.com:8080"
+ *
+ * @export
+ * @param {string} url
+ * @returns {(string | undefined)}
+ */
+export function getURLBaseURI(url: string): string | undefined {
+  const urlParsed = URLBuilder.parse(url);
+  const urlScheme = urlParsed.getScheme();
+  const urlHost = urlParsed.getHost();
+  const urlPort = urlParsed.getPort();
+
+  let baseURI = "";
+  baseURI += urlScheme ? `${urlScheme}://` : "";
+  baseURI += urlHost ? urlHost : "";
+  baseURI += urlPort ? `:${urlPort}` : "";
+
+  return baseURI.length > 0 ? baseURI : undefined;
+}
+
+/**
  * Get the storage account from an URL string.
  *
  * @export
