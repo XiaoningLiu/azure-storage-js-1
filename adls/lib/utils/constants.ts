@@ -1,10 +1,11 @@
 export const SDK_VERSION: string = "11.0.0-preview";
 export const SERVICE_VERSION: string = "2018-06-17";
 
-export const BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES: number = 256 * 1024 * 1024; // 256MB
-export const BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES: number = 100 * 1024 * 1024; // 100MB
-export const BLOCK_BLOB_MAX_BLOCKS: number = 50000;
-export const BLOB_DEFAULT_DOWNLOAD_BLOCK_BYTES: number = 4 * 1024 * 1024; // 4MB
+export const ADLS_MAX_APPEND_DATA_NUMBER: number = 50000;
+export const ADLS_MAX_FILE_BYTES: number =
+  ADLS_MAX_APPEND_DATA_NUMBER * 100 * 1024 * 1024; // 5000,000MB
+export const ADLS_MAX_APPEND_DATA_BYTES: number = 100 * 1024 * 1024; // 100MB
+export const ADLS_DEFAULT_APPEND_DATA_BYTES: number = 4 * 1024 * 1024; // 4MB
 
 export const URLConstants = {
   Parameters: {

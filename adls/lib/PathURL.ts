@@ -1,9 +1,10 @@
-import { HttpRequestBody } from "ms-rest-js";
-
+import { HttpRequestBody, isNode, TransferProgressEvent } from "ms-rest-js";
 import { Aborter } from "./Aborter";
 import { FileSystemURL } from "./FileSystemURL";
 import * as Models from "./generated/lib/models";
 import { PathOperations } from "./generated/lib/operations";
+import { IRange, rangeToString, stringToRange } from "./IRange";
+import { PathReadResponse } from "./PathReadResponse";
 import { Pipeline } from "./Pipeline";
 import { StorageURL } from "./StorageURL";
 import { appendToURLPath, getURLPathComponents } from "./utils/utils.common";
@@ -629,10 +630,10 @@ export interface IPathReadOptions {
    * The HTTP Range request header specifies one or
    * more byte ranges of the resource to be retrieved.
    *
-   * @type {string}
+   * @type {(IRange | string)}
    * @memberof IPathReadOptions
    */
-  range?: string;
+  range?: IRange | string;
 
   /**
    * Optional. An ETag value. Specify this header
@@ -674,6 +675,28 @@ export interface IPathReadOptions {
    * @memberof IPathReadOptions
    */
   ifUnmodifiedSince?: string;
+
+  /**
+   * Optional. ONLY AVAILABLE IN NODE.JS.
+   *
+   * How many retries will perform when original body download stream unexpected ends.
+   * Above kinds of ends will not trigger retry policy because they doesn't emit network errors.
+   * With this option, every additional retry means an additional PathURL.read() request will be made
+   * until the requested range has been successfully downloaded.
+   *
+   * Default value is 5, please set a larger value when loading large files in poor network.
+   *
+   * @type {number}
+   * @memberof IPathReadOptions
+   */
+  maxRetries?: number;
+
+  /**
+   * Data transfer progress event handler.
+   *
+   * @memberof IPathReadOptions
+   */
+  progress?: (progress: TransferProgressEvent) => void;
 }
 
 export interface IPathGetPropertiesOptions {
@@ -1024,10 +1047,86 @@ export class PathURL extends StorageURL {
     aborter: Aborter,
     options: IPathReadOptions = {}
   ): Promise<Models.PathReadResponse> {
-    return this.pathOperationsContext.read(this.fileSystemName, this.path, {
+    let range: string | undefined;
+    if (typeof options.range === "string") {
+      range = options.range;
+    } else if (options.range) {
+      range = rangeToString(options.range);
+    }
+
+    const internalOptions: Models.PathReadOptionalParams = {
       abortSignal: aborter,
-      ...options
-    });
+      ifMatch: options.ifMatch,
+      ifModifiedSince: options.ifModifiedSince,
+      ifNoneMatch: options.ifNoneMatch,
+      ifUnmodifiedSince: options.ifUnmodifiedSince,
+      range
+    };
+
+    // Leverage build-in progress handler for browsers
+    if (!isNode) {
+      internalOptions.onDownloadProgress = options.progress;
+    }
+
+    const response = await this.pathOperationsContext.read(
+      this.fileSystemName,
+      this.path,
+      internalOptions
+    );
+
+    if (!isNode) {
+      return response;
+    }
+
+    // We support retrying when download stream unexpected ends in Node.js runtime
+    // Following code shouldn't be bundled into browser bundle, however some
+    // bundlers may try to bundle following code and "PathReadResponse.ts".
+    // In this case, "PathReadResponse.browser.ts" will be used as a shim of "PathReadResponse.ts"
+    // The config is in package.json "browser" field
+    if (!response.contentLength) {
+      throw new RangeError(
+        `Path read response doesn't contain valid content length header`
+      );
+    }
+
+    let offset = 0; // Default offset
+    let count = Number.parseInt(response.contentLength); // Count to read
+    if (range) {
+      const rangeObject = stringToRange(range);
+      offset = rangeObject.offset;
+      count = rangeObject.count ? rangeObject.count : count;
+    }
+
+    return new PathReadResponse(
+      aborter,
+      response,
+      async (start: number): Promise<NodeJS.ReadableStream> => {
+        const updatedOptions: Models.PathReadOptionalParams = {
+          ifMatch: response.eTag,
+          ifModifiedSince: options.ifModifiedSince,
+          ifNoneMatch: options.ifNoneMatch,
+          ifUnmodifiedSince: options.ifUnmodifiedSince,
+          range: rangeToString({
+            count: offset + count - start + 1,
+            offset: start
+          })
+        };
+
+        // console.log(
+        //   `Path.read() options for next retry: ${JSON.stringify(updatedOptions)}`
+        // );
+
+        return (await this.pathOperationsContext.read(
+          this.fileSystemName,
+          this.path,
+          { abortSignal: aborter, ...updatedOptions }
+        )).readableStreamBody!;
+      },
+      offset,
+      offset + count - 1,
+      options.maxRetries,
+      options.progress
+    );
   }
 
   /**

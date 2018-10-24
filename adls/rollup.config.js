@@ -15,7 +15,7 @@ const banner = [
 
 const nodeRollupConfigFactory = () => {
   return {
-    external: ["ms-rest-js", "crypto", "fs", "events", "os"],
+    external: ["ms-rest-js", "crypto", "fs", "events", "os", "stream"],
     input: "dist-esm/lib/index.js",
     output: {
       file: "dist/index.js",
@@ -43,7 +43,8 @@ const browserRollupConfigFactory = isProduction => {
           // replace dynamic checks with if (false) since this is for
           // browser only. Rollup's dead code elimination will remove
           // any code guarded by if (isNode) { ... }
-          "if (isNode)": "if (false)"
+          "if (isNode)": "if (false)",
+          "if (!isNode)": "if (true)"
         }
       }),
       // os is not used by the browser bundle, so just shim it

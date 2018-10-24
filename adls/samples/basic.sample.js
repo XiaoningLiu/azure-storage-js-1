@@ -14,7 +14,7 @@ const {
   PathURL,
   Models,
   FileSystemURL,
-  uploadFile
+  uploadLocalFile
 } = require("..");
 
 async function main() {
@@ -31,11 +31,12 @@ async function main() {
   // Use sharedKeyCredential or tokenCredential to create a pipeline
   const pipeline = StorageURL.newPipeline(sharedKeyCredential, {
     logger: {
-      minimumLogLevel: 1,
+      minimumLogLevel: 4,
       log: (logLevel, message) => {
         console.log(message);
       }
-    }
+    },
+    retryOptions: { maxTries: 5 }
   });
 
   const serviceURL = new ServiceURL(
@@ -54,42 +55,42 @@ async function main() {
   await fileSystemURL.create(Aborter.none);
 
   // Get File System Properties
-  console.log(`# Get file system properties\n`);
-  let properties = await fileSystemURL.getProperties(Aborter.none);
-  console.log(`Properties: ${JSON.stringify(properties)}\n`);
+  // console.log(`# Get file system properties\n`);
+  // let properties = await fileSystemURL.getProperties(Aborter.none);
+  // console.log(`Properties: ${JSON.stringify(properties)}\n`);
 
-  // Set File System Properties
-  const fileSystemProperties = "h1=djE=,h3=djM=";
-  console.log(`# Set file system properties: ${fileSystemProperties}\n`);
-  await fileSystemURL.setProperties(Aborter.none, fileSystemProperties);
+  // // Set File System Properties
+  // const fileSystemProperties = "h1=djE=,h3=djM=";
+  // console.log(`# Set file system properties: ${fileSystemProperties}\n`);
+  // await fileSystemURL.setProperties(Aborter.none, fileSystemProperties);
 
-  console.log(`# Refresh file system properties\n`);
-  properties = await fileSystemURL.getProperties(Aborter.none);
-  console.log(`Properties: ${JSON.stringify(properties)}\n`);
+  // console.log(`# Refresh file system properties\n`);
+  // properties = await fileSystemURL.getProperties(Aborter.none);
+  // console.log(`Properties: ${JSON.stringify(properties)}\n`);
 
   // List File Systems
-  console.log(`# List all file systems\n`);
-  let marker;
-  do {
-    const listFileSystemsResponse = await serviceURL.listFileSystemsSegment(
-      Aborter.none
-    );
+  // console.log(`# List all file systems\n`);
+  // let marker;
+  // do {
+  //   const listFileSystemsResponse = await serviceURL.listFileSystemsSegment(
+  //     Aborter.none
+  //   );
 
-    marker = listFileSystemsResponse.xMsContinuation;
-    for (const fileSystem of listFileSystemsResponse.filesystems) {
-      console.log(
-        `=====> fileSystem: ${fileSystem.name} ${JSON.stringify(fileSystem)}`
-      );
+  //   marker = listFileSystemsResponse.xMsContinuation;
+  //   for (const fileSystem of listFileSystemsResponse.filesystems) {
+  //     console.log(
+  //       `=====> fileSystem: ${fileSystem.name} ${JSON.stringify(fileSystem)}`
+  //     );
 
-      const filesystemURL = FileSystemURL.fromServiceURL(
-        serviceURL,
-        fileSystem.name
-      );
+  //     const filesystemURL = FileSystemURL.fromServiceURL(
+  //       serviceURL,
+  //       fileSystem.name
+  //     );
 
-      const properties = await filesystemURL.getProperties(Aborter.none);
-      console.log(`=====> properties: ${JSON.stringify(properties)}\n`);
-    }
-  } while (marker);
+  //     const properties = await filesystemURL.getProperties(Aborter.none);
+  //     console.log(`=====> properties: ${JSON.stringify(properties)}\n`);
+  //   }
+  // } while (marker);
 
   // Create directory
   const directoryName = `mydirectory${new Date().getTime()}`;
@@ -112,56 +113,62 @@ async function main() {
   });
 
   // Set directory properties
-  const dirProperties = "v1=MQ==";
-  console.log(`# Set directory properties: ${dirProperties}\n`);
-  const setPropertiesResponse = await destDirectoryURL.update(
-    Aborter.none,
-    Models.PathUpdateAction.SetProperties,
-    { xMsProperties: dirProperties }
-  );
+  // const dirProperties = "v1=MQ==";
+  // console.log(`# Set directory properties: ${dirProperties}\n`);
+  // const setPropertiesResponse = await destDirectoryURL.update(
+  //   Aborter.none,
+  //   Models.PathUpdateAction.SetProperties,
+  //   { xMsProperties: dirProperties }
+  // );
 
-  // Get directory properties
-  console.log("# Get directory properties\n");
-  const directoryPropertiesResponse = await destDirectoryURL.getProperties(
-    Aborter.none
-  );
-  console.log(
-    `Directory Properties: ${JSON.stringify(directoryPropertiesResponse)}\n`
-  );
+  // // Get directory properties
+  // console.log("# Get directory properties\n");
+  // const directoryPropertiesResponse = await destDirectoryURL.getProperties(
+  //   Aborter.none
+  // );
+  // console.log(
+  //   `Directory Properties: ${JSON.stringify(directoryPropertiesResponse)}\n`
+  // );
 
-  // Create file
-  const fileName = `${destDirectoryURL.path}/file${new Date().getTime()}`;
-  const fileURL = PathURL.fromFileSystemURL(fileSystemURL, fileName);
+  // // Create file
+  // const fileName = `${destDirectoryURL.path}/file${new Date().getTime()}`;
+  // const fileURL = PathURL.fromFileSystemURL(fileSystemURL, fileName);
 
-  console.log(`# Create file: ${fileName}\n`);
-  await fileURL.create(Aborter.none, {
-    resource: Models.PathResourceType.File
-  });
+  // console.log(`# Create file: ${fileName}\n`);
+  // await fileURL.create(Aborter.none, {
+  //   resource: Models.PathResourceType.File
+  // });
 
-  // Update file content and commit file
-  console.log("# Append file content and flush\n");
-  const content = "Hello World";
-  await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
-    position: 0,
-    requestBody: content,
-    contentLength: content.length.toString()
-  });
+  // // Update file content and commit file
+  // console.log("# Append file content and flush\n");
+  // const content = "Hello World";
+  // await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
+  //   position: 0,
+  //   requestBody: content,
+  //   contentLength: content.length.toString()
+  // });
 
-  await fileURL.update(Aborter.none, Models.PathUpdateAction.Flush, {
-    position: content.length
-  });
+  // await fileURL.update(Aborter.none, Models.PathUpdateAction.Flush, {
+  //   position: content.length
+  // });
 
   // Download & read file
-  console.log("# Download & Read file\n");
-  const readResponse = await fileURL.read(Aborter.none);
-  console.log(
-    `Content read: ${readResponse.readableStreamBody
-      .read(content.length)
-      .toString()}\n`
-  );
+  // console.log("# Download & Read file\n");
+  // const readResponse = await fileURL.read(Aborter.none);
+  // console.log(
+  //   `Content read: ${readResponse.readableStreamBody
+  //     .read(content.length)
+  //     .toString()}\n`
+  // );
 
-  // Upload local file parallel (highlevel API, STILL UNDER DEVELOPEMENT)
-  /*
+  // const rs = readResponse.readableStreamBody;
+  // rs.on("data", console.log);
+  // rs.on("error", console.error);
+  // rs.on("end", () => {
+  //   console.log("end");
+  // });
+
+  // Upload local file parallel (highlevel API, STILL UNDER DEVELOPMENT)
   const localFileName = path.basename(localFilePath);
   const fullPath = `${destDirectoryName}/${localFileName}`;
   const fileURL2 = PathURL.fromFileSystemURL(fileSystemURL, fullPath);
@@ -169,16 +176,22 @@ async function main() {
   await fileURL2.create(Aborter.none, {
     resource: Models.PathResourceType.File
   });
-  await uploadFile(Aborter.none, localFilePath, fileURL2, {
+  await uploadLocalFile(Aborter.none, localFilePath, fileURL2, {
     blockSize: 4 * 1024 * 1024,
     parallelism: 100,
     progress: console.log
   });
 
-  // Download uploaded local file to dist
+  // Download uploaded local file to disk
   console.log(`\n # Download uploaded local file to disk`);
+  // const fileURL2 = new PathURL(
+  //   "https://adlsxiaonli.dfs.core.windows.net/fs1540362248858/destdirectory1540362250686/DeanBrown2014KaskaskiaMss_1.0_16feb2014_S.pdf",
+  //   pipeline
+  // );
 
-  const downloadResponse = await fileURL2.read(Aborter.none);
+  const downloadResponse = await fileURL2.read(Aborter.timeout(3 * 1000), {
+    progress: console.log
+  });
 
   await (async () => {
     return new Promise((resolve, reject) => {
@@ -188,6 +201,7 @@ async function main() {
       downloadResponse.readableStreamBody.on("error", reject);
       downloadResponse.readableStreamBody.on("end", resolve);
 
+      // let localFileName = "downloaded.pdf";
       if (fs.existsSync(localFileName)) {
         fs.unlinkSync(localFileName);
       }
@@ -195,17 +209,16 @@ async function main() {
       downloadResponse.readableStreamBody.pipe(ws);
     });
   })();
-  */
 
   // List paths
-  console.log("# List paths\n");
-  const listPathsResult = await fileSystemURL.listPathsSegment(
-    Aborter.none,
-    true
-  );
-  for (const path of listPathsResult.paths) {
-    console.log(`Path: ${path.name} ${JSON.stringify(path)}\n`);
-  }
+  // console.log("# List paths\n");
+  // const listPathsResult = await fileSystemURL.listPathsSegment(
+  //   Aborter.none,
+  //   true
+  // );
+  // for (const path of listPathsResult.paths) {
+  //   console.log(`Path: ${path.name} ${JSON.stringify(path)}\n`);
+  // }
 
   // Delete directory
   console.log("# Delete directory\n");
