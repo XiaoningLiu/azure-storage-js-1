@@ -19,6 +19,7 @@
   "dependencies": {
     "events": "3.0.0",
     "ms-rest-js": "1.0.439",
+    "ts-node": "^7.0.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {

@@ -226,6 +226,6 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
       }
     }
 
-    return canonicalizedResourceString;
+    return canonicalizedResourceString.toLowerCase();
   }
 }

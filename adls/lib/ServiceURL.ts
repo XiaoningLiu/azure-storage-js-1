@@ -4,6 +4,27 @@ import { FilesystemOperations } from "./generated/lib/operations";
 import { Pipeline } from "./Pipeline";
 import { StorageURL } from "./StorageURL";
 
+export interface IServiceListFileSystemsSegmentOptions {
+  /**
+   * Filters results to file systems within the
+   * specified prefix.
+   *
+   * @type {string}
+   * @memberof IServiceListFileSystemsSegmentOptions
+   */
+  prefix?: string;
+
+  /**
+   * An optional value that specifies the maximum
+   * number of items to return. If omitted or greater than 5,000, the response
+   * will include up to 5,000 items.
+   *
+   * @type {number}
+   * @memberof IServiceListFileSystemsSegmentOptions
+   */
+  maxResults?: number;
+}
+
 /**
  * A ServiceURL represents a URL to the Azure Storage ADLS service allowing you
  * to manipulate ADLS service.
@@ -50,21 +71,46 @@ export class ServiceURL extends StorageURL {
 
   /**
    * Returns a list of the containers under the specified account.
-   * @see https://docs.microsoft.com/en-us/rest/api/storageservices/list-containers2
    *
    * @param {Aborter} aborter Create a new Aborter instance with Aborter.none or Aborter.timeout(),
    *                          goto documents of Aborter for more examples about request cancellation
-   * @param {Models.DataLakeStorageErrorFilesystemListOptionalParams} [options]
+   * @param {string} [continuation] The number of file systems returned with
+   * each invocation is limited. If the number of file systems to be returned
+   * exceeds this limit, a continuation token is returned in the response
+   * header x-ms-continuation. When a continuation token is  returned in the
+   * response, it must be specified in a subsequent invocation of the list
+   * operation to continue listing the file systems.
+   * @param {IServiceListFileSystemsSegmentOptions} [options={}]
    * @returns {Promise<Models.FilesystemListResponse>}
    * @memberof ServiceURL
    */
   public async listFileSystemsSegment(
     aborter: Aborter,
-    options: Models.FilesystemListOptionalParams = {}
+    continuation?: string,
+    options: IServiceListFileSystemsSegmentOptions = {}
   ): Promise<Models.FilesystemListResponse> {
-    return this.serviceContext.list({
+    const response = await this.serviceContext.list({
       abortSignal: aborter,
+      continuation,
       ...options
     });
+
+    // TODO: swagger issue "definitions" -> "Filesystem" -> "properties" -> "eTag" should be "etag"
+    if (response._response && response._response.bodyAsText) {
+      const responseJSON = JSON.parse(response._response.bodyAsText);
+      if (responseJSON["filesystems"] && response.filesystems) {
+        const etags: { [key: string]: string } = {};
+        responseJSON["filesystems"].forEach(
+          (filesystem: { name: string; etag: string }) => {
+            etags[filesystem.name] = filesystem.etag;
+          }
+        );
+        response.filesystems.forEach(filesystem => {
+          filesystem.eTag = etags[filesystem.name!];
+        });
+      }
+    }
+
+    return response;
   }
 }

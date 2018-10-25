@@ -15,6 +15,7 @@ export type ReadableStreamGetter = (
  * @extends {Readable}
  */
 export class RetriableReadableStream extends Readable {
+  private aborter: Aborter;
   private start: number;
   private offset: number;
   private end: number;
@@ -48,6 +49,7 @@ export class RetriableReadableStream extends Readable {
     progress?: (progress: TransferProgressEvent) => void
   ) {
     super();
+    this.aborter = aborter;
     this.getter = getter;
     this.source = source;
     this.start = startInPath;
@@ -56,11 +58,8 @@ export class RetriableReadableStream extends Readable {
     this.maxRetries = maxRetries >= 0 ? maxRetries : 0;
     this.progress = progress;
 
-    this.setSourceDataHandler();
-    this.setSourceEndHandler();
-    this.setSourceErrorHandler();
-
     aborter.addEventListener("abort", () => {
+      this.source.pause();
       this.emit(
         "error",
         new RestError(
@@ -68,12 +67,17 @@ export class RetriableReadableStream extends Readable {
           RestError.REQUEST_ABORTED_ERROR
         )
       );
-      this.source.pause();
     });
+
+    this.setSourceDataHandler();
+    this.setSourceEndHandler();
+    this.setSourceErrorHandler();
   }
 
   public _read() {
-    this.source.resume();
+    if (!this.aborter.aborted) {
+      this.source.resume();
+    }
   }
 
   private setSourceDataHandler() {

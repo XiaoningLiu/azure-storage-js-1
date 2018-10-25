@@ -2,10 +2,11 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 
+import { HttpPipelineLogLevel } from "../../lib";
 import { SharedKeyCredential } from "../../lib/credentials/SharedKeyCredential";
 import { ServiceURL } from "../../lib/ServiceURL";
 import { StorageURL } from "../../lib/StorageURL";
-import { getUniqueName } from "./testutils.common";
+import { ConsoleHttpPipelineLogger, getUniqueName } from "./testutils.common";
 
 export * from "./testutils.common";
 
@@ -31,9 +32,9 @@ export function getGenericBSU(
   const credentials = new SharedKeyCredential(accountName, accountKey);
   const pipeline = StorageURL.newPipeline(credentials, {
     // Enable logger when debugging
-    // logger: new ConsoleHttpPipelineLogger(HttpPipelineLogLevel.INFO)
+    logger: new ConsoleHttpPipelineLogger(HttpPipelineLogLevel.ERROR)
   });
-  const blobPrimaryURL = `https://${accountName}${accountNameSuffix}.blob.core.windows.net/`;
+  const blobPrimaryURL = `https://${accountName}${accountNameSuffix}.dfs.core.windows.net/`;
   return new ServiceURL(blobPrimaryURL, pipeline);
 }
 

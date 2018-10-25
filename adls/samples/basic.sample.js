@@ -55,51 +55,49 @@ async function main() {
   await fileSystemURL.create(Aborter.none);
 
   // Get File System Properties
-  // console.log(`# Get file system properties\n`);
-  // let properties = await fileSystemURL.getProperties(Aborter.none);
-  // console.log(`Properties: ${JSON.stringify(properties)}\n`);
+  console.log(`# Get file system properties\n`);
+  let properties = await fileSystemURL.getProperties(Aborter.none);
+  console.log(`Properties: ${JSON.stringify(properties)}\n`);
 
-  // // Set File System Properties
-  // const fileSystemProperties = "h1=djE=,h3=djM=";
-  // console.log(`# Set file system properties: ${fileSystemProperties}\n`);
-  // await fileSystemURL.setProperties(Aborter.none, fileSystemProperties);
+  // Set File System Properties
+  const fileSystemProperties = "h1=djE=,h3=djM=";
+  console.log(`# Set file system properties: ${fileSystemProperties}\n`);
+  await fileSystemURL.setProperties(Aborter.none, fileSystemProperties);
 
-  // console.log(`# Refresh file system properties\n`);
-  // properties = await fileSystemURL.getProperties(Aborter.none);
-  // console.log(`Properties: ${JSON.stringify(properties)}\n`);
+  console.log(`# Refresh file system properties\n`);
+  properties = await fileSystemURL.getProperties(Aborter.none);
+  console.log(`Properties: ${JSON.stringify(properties)}\n`);
 
   // List File Systems
-  // console.log(`# List all file systems\n`);
-  // let marker;
-  // do {
-  //   const listFileSystemsResponse = await serviceURL.listFileSystemsSegment(
-  //     Aborter.none
-  //   );
+  console.log(`# List all file systems\n`);
+  let marker;
+  do {
+    const listFileSystemsResponse = await serviceURL.listFileSystemsSegment(
+      Aborter.none
+    );
 
-  //   marker = listFileSystemsResponse.xMsContinuation;
-  //   for (const fileSystem of listFileSystemsResponse.filesystems) {
-  //     console.log(
-  //       `=====> fileSystem: ${fileSystem.name} ${JSON.stringify(fileSystem)}`
-  //     );
+    marker = listFileSystemsResponse.xMsContinuation;
+    for (const fileSystem of listFileSystemsResponse.filesystems) {
+      console.log(
+        `=====> fileSystem: ${fileSystem.name} ${JSON.stringify(fileSystem)}`
+      );
 
-  //     const filesystemURL = FileSystemURL.fromServiceURL(
-  //       serviceURL,
-  //       fileSystem.name
-  //     );
+      const filesystemURL = FileSystemURL.fromServiceURL(
+        serviceURL,
+        fileSystem.name
+      );
 
-  //     const properties = await filesystemURL.getProperties(Aborter.none);
-  //     console.log(`=====> properties: ${JSON.stringify(properties)}\n`);
-  //   }
-  // } while (marker);
+      const properties = await filesystemURL.getProperties(Aborter.none);
+      console.log(`=====> properties: ${JSON.stringify(properties)}\n`);
+    }
+  } while (marker);
 
   // Create directory
   const directoryName = `mydirectory${new Date().getTime()}`;
   console.log(`# Create directory: ${directoryName}\n`);
   const directoryURL = PathURL.fromFileSystemURL(fileSystemURL, directoryName);
 
-  await directoryURL.create(Aborter.none, {
-    resource: Models.PathResourceType.Directory
-  });
+  await directoryURL.create(Aborter.none, Models.PathResourceType.Directory);
 
   // Rename directory
   const destDirectoryName = `destdirectory${new Date().getTime()}`;
@@ -113,69 +111,65 @@ async function main() {
   });
 
   // Set directory properties
-  // const dirProperties = "v1=MQ==";
-  // console.log(`# Set directory properties: ${dirProperties}\n`);
-  // const setPropertiesResponse = await destDirectoryURL.update(
-  //   Aborter.none,
-  //   Models.PathUpdateAction.SetProperties,
-  //   { xMsProperties: dirProperties }
-  // );
+  const dirProperties = "v1=MQ==";
+  console.log(`# Set directory properties: ${dirProperties}\n`);
+  const setPropertiesResponse = await destDirectoryURL.update(
+    Aborter.none,
+    Models.PathUpdateAction.SetProperties,
+    { xMsProperties: dirProperties }
+  );
 
-  // // Get directory properties
-  // console.log("# Get directory properties\n");
-  // const directoryPropertiesResponse = await destDirectoryURL.getProperties(
-  //   Aborter.none
-  // );
-  // console.log(
-  //   `Directory Properties: ${JSON.stringify(directoryPropertiesResponse)}\n`
-  // );
+  // Get directory properties
+  console.log("# Get directory properties\n");
+  const directoryPropertiesResponse = await destDirectoryURL.getProperties(
+    Aborter.none
+  );
+  console.log(
+    `Directory Properties: ${JSON.stringify(directoryPropertiesResponse)}\n`
+  );
 
-  // // Create file
-  // const fileName = `${destDirectoryURL.path}/file${new Date().getTime()}`;
-  // const fileURL = PathURL.fromFileSystemURL(fileSystemURL, fileName);
+  // Create file
+  const fileName = `${destDirectoryURL.path}/file${new Date().getTime()}`;
+  const fileURL = PathURL.fromFileSystemURL(fileSystemURL, fileName);
 
-  // console.log(`# Create file: ${fileName}\n`);
-  // await fileURL.create(Aborter.none, {
-  //   resource: Models.PathResourceType.File
-  // });
+  console.log(`# Create file: ${fileName}\n`);
+  await fileURL.create(Aborter.none, Models.PathResourceType.File);
 
-  // // Update file content and commit file
-  // console.log("# Append file content and flush\n");
-  // const content = "Hello World";
-  // await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
-  //   position: 0,
-  //   requestBody: content,
-  //   contentLength: content.length.toString()
-  // });
+  // Update file content and commit file
+  console.log("# Append file content and flush\n");
+  const content = "Hello World";
+  await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
+    position: 0,
+    requestBody: content,
+    contentLength: content.length.toString()
+  });
 
-  // await fileURL.update(Aborter.none, Models.PathUpdateAction.Flush, {
-  //   position: content.length
-  // });
+  await fileURL.update(Aborter.none, Models.PathUpdateAction.Flush, {
+    position: content.length
+  });
 
   // Download & read file
-  // console.log("# Download & Read file\n");
-  // const readResponse = await fileURL.read(Aborter.none);
-  // console.log(
-  //   `Content read: ${readResponse.readableStreamBody
-  //     .read(content.length)
-  //     .toString()}\n`
-  // );
+  console.log("# Download & Read file\n");
+  const readResponse = await fileURL.read(Aborter.none);
+  console.log(
+    `Content read: ${readResponse.readableStreamBody
+      .read(content.length)
+      .toString()}\n`
+  );
 
-  // const rs = readResponse.readableStreamBody;
-  // rs.on("data", console.log);
-  // rs.on("error", console.error);
-  // rs.on("end", () => {
-  //   console.log("end");
-  // });
+  const rs = readResponse.readableStreamBody;
+  rs.on("data", console.log);
+  rs.on("error", console.error);
+  rs.on("end", () => {
+    console.log("end");
+  });
 
   // Upload local file parallel (highlevel API, STILL UNDER DEVELOPMENT)
   const localFileName = path.basename(localFilePath);
   const fullPath = `${destDirectoryName}/${localFileName}`;
   const fileURL2 = PathURL.fromFileSystemURL(fileSystemURL, fullPath);
   console.log(`# Upload local file: ${localFilePath} to ${fileURL2.url}`);
-  await fileURL2.create(Aborter.none, {
-    resource: Models.PathResourceType.File
-  });
+  await fileURL2.create(Aborter.none, Models.PathResourceType.File);
   await uploadLocalFile(Aborter.none, localFilePath, fileURL2, {
     blockSize: 4 * 1024 * 1024,
     parallelism: 100,
@@ -189,7 +183,7 @@ async function main() {
   //   pipeline
   // );
 
-  const downloadResponse = await fileURL2.read(Aborter.timeout(3 * 1000), {
+  const downloadResponse = await fileURL2.read(Aborter.timeout(5 * 1000), {
     progress: console.log
   });
 

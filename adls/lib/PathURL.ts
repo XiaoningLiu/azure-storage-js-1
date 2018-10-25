@@ -11,16 +11,6 @@ import { appendToURLPath, getURLPathComponents } from "./utils/utils.common";
 
 export interface IPathCreateOptions {
   /**
-   * Required only for Create File and
-   * Create Directory. The value must be "file" or "directory". Possible values
-   * include: 'directory', 'file'
-   *
-   * @type {Models.PathResourceType}
-   * @memberof IPathCreateOptions
-   */
-  resource?: Models.PathResourceType;
-
-  /**
    * Optional.  When renaming a directory, the
    * number of paths that are renamed with each invocation is limited.  If the
    * number of paths to be renamed exceeds this limit, a continuation token is
@@ -701,17 +691,6 @@ export interface IPathReadOptions {
 
 export interface IPathGetPropertiesOptions {
   /**
-   * Optional. If the value is
-   * "getAccessControl" the access control list is returned in the response
-   * headers (Hierarchical Namespace must be enabled for the account). Possible
-   * values include: 'getAccessControl'
-   *
-   * @type {Models.PathGetPropertiesAction}
-   * @memberof IPathGetPropertiesOptions
-   */
-  action?: Models.PathGetPropertiesAction;
-
-  /**
    * Optional. An ETag value. Specify this header
    * to perform the operation only if the resource's ETag matches the value
    * specified. The ETag must be specified in quotes.
@@ -857,6 +836,19 @@ export class PathURL extends StorageURL {
   }
 
   /**
+   * Creates a PathURL object from PathURL which pointing to a directory.
+   *
+   * @static
+   * @param {PathURL} pathURL
+   * @param {string} path Relative Path to a directory
+   * @returns {PathURL}
+   * @memberof PathURL
+   */
+  public static fromPathURL(pathURL: PathURL, path: string): PathURL {
+    return new PathURL(appendToURLPath(pathURL.url, path), pathURL.pipeline);
+  }
+
+  /**
    * FileSystem name extracted from url.
    *
    * @type {string}
@@ -934,16 +926,20 @@ export class PathURL extends StorageURL {
    *
    * @param {Aborter} aborter Create a new Aborter instance with Aborter.none or Aborter.timeout(),
    *                          goto documents of Aborter for more examples about request cancellation
+   * @param {Models.PathResourceType} [resource] Required only for Create File and
+   * Create Directory. The value must be "file" or "directory".
    * @param {IPathCreateOptions} [options={}]
    * @returns {Promise<Models.PathCreateResponse>}
    * @memberof PathURL
    */
   public async create(
     aborter: Aborter,
+    resource?: Models.PathResourceType,
     options: IPathCreateOptions = {}
   ): Promise<Models.PathCreateResponse> {
     return this.pathOperationsContext.create(this.fileSystemName, this.path, {
       abortSignal: aborter,
+      resource,
       ...options
     });
   }
@@ -1139,12 +1135,17 @@ export class PathURL extends StorageURL {
    *
    * @param {Aborter} aborter Create a new Aborter instance with Aborter.none or Aborter.timeout(),
    *                          goto documents of Aborter for more examples about request cancellation
+   * @param {Models.PathGetPropertiesAction} [action] Optional. If the value is
+   * "getAccessControl" the access control list is returned in the response
+   * headers (Hierarchical Namespace must be enabled for the account). Possible
+   * values include: 'getAccessControl'
    * @param {IPathGetPropertiesOptions} [options={}]
    * @returns {Promise<Models.PathGetPropertiesResponse>}
    * @memberof PathURL
    */
   public async getProperties(
     aborter: Aborter,
+    action?: Models.PathGetPropertiesAction,
     options: IPathGetPropertiesOptions = {}
   ): Promise<Models.PathGetPropertiesResponse> {
     return this.pathOperationsContext.getProperties(
@@ -1152,6 +1153,7 @@ export class PathURL extends StorageURL {
       this.path,
       {
         abortSignal: aborter,
+        action,
         ...options
       }
     );
