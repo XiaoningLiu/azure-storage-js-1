@@ -62,6 +62,7 @@ The Azure Storage SDK for JavaScript provides low-level and high-level APIs.
 ## Code Samples
 
 * [ADLS Gen2 Storage Examples](https://github.com/XiaoningLiu/azure-storage-js-1/tree/adls/adls/samples)
+* [Test Cases](https://github.com/XiaoningLiu/azure-storage-js-1/tree/adls/adls/test)
 
 ## License
 

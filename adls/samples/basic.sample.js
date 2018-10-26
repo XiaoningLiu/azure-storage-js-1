@@ -30,12 +30,12 @@ async function main() {
 
   // Use sharedKeyCredential or tokenCredential to create a pipeline
   const pipeline = StorageURL.newPipeline(sharedKeyCredential, {
-    logger: {
-      minimumLogLevel: 4,
-      log: (logLevel, message) => {
-        console.log(message);
-      }
-    },
+    // logger: {
+    //   minimumLogLevel: 4,
+    //   log: (logLevel, message) => {
+    //     console.log(message);
+    //   }
+    // },
     retryOptions: { maxTries: 5 }
   });
 
@@ -106,7 +106,7 @@ async function main() {
     fileSystemURL,
     destDirectoryName
   );
-  await destDirectoryURL.create(Aborter.none, {
+  await destDirectoryURL.create(Aborter.none, undefined, {
     xMsRenameSource: `/${directoryURL.fileSystemName}/${directoryURL.path}`
   });
 
@@ -129,8 +129,8 @@ async function main() {
   );
 
   // Create file
-  const fileName = `${destDirectoryURL.path}/file${new Date().getTime()}`;
-  const fileURL = PathURL.fromFileSystemURL(fileSystemURL, fileName);
+  const fileName = `file${new Date().getTime()}`;
+  const fileURL = PathURL.fromPathURL(destDirectoryURL, fileName);
 
   console.log(`# Create file: ${fileName}\n`);
   await fileURL.create(Aborter.none, Models.PathResourceType.File);
@@ -141,7 +141,7 @@ async function main() {
   await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
     position: 0,
     requestBody: content,
-    contentLength: content.length.toString()
+    contentLength: content.length
   });
 
   await fileURL.update(Aborter.none, Models.PathUpdateAction.Flush, {
@@ -150,26 +150,21 @@ async function main() {
 
   // Download & read file
   console.log("# Download & Read file\n");
-  const readResponse = await fileURL.read(Aborter.none);
-  console.log(
-    `Content read: ${readResponse.readableStreamBody
-      .read(content.length)
-      .toString()}\n`
-  );
-
-  const rs = readResponse.readableStreamBody;
-  rs.on("data", console.log);
-  rs.on("error", console.error);
-  rs.on("end", () => {
-    console.log("end");
+  const readResponse = await fileURL.read(Aborter.none, { maxRetries: 10 });
+  console.log(`Content read:`);
+  await (async () => {
+    return new Promise((resolve, reject) => {
+      readResponse.readableStreamBody.on("data", console.log);
+      readResponse.readableStreamBody.on("end", resolve);
+      readResponse.readableStreamBody.on("error", reject);
+    });
   });
 
-  // Upload local file parallel (highlevel API, STILL UNDER DEVELOPMENT)
+  // Upload local file parallel
   const localFileName = path.basename(localFilePath);
   const fullPath = `${destDirectoryName}/${localFileName}`;
   const fileURL2 = PathURL.fromFileSystemURL(fileSystemURL, fullPath);
   console.log(`# Upload local file: ${localFilePath} to ${fileURL2.url}`);
-  await fileURL2.create(Aborter.none, Models.PathResourceType.File);
   await uploadLocalFile(Aborter.none, localFilePath, fileURL2, {
     blockSize: 4 * 1024 * 1024,
     parallelism: 100,
@@ -178,12 +173,7 @@ async function main() {
 
   // Download uploaded local file to disk
   console.log(`\n # Download uploaded local file to disk`);
-  // const fileURL2 = new PathURL(
-  //   "https://adlsxiaonli.dfs.core.windows.net/fs1540362248858/destdirectory1540362250686/DeanBrown2014KaskaskiaMss_1.0_16feb2014_S.pdf",
-  //   pipeline
-  // );
-
-  const downloadResponse = await fileURL2.read(Aborter.timeout(5 * 1000), {
+  const downloadResponse = await fileURL2.read(Aborter.none, {
     progress: console.log
   });
 
@@ -195,7 +185,6 @@ async function main() {
       downloadResponse.readableStreamBody.on("error", reject);
       downloadResponse.readableStreamBody.on("end", resolve);
 
-      // let localFileName = "downloaded.pdf";
       if (fs.existsSync(localFileName)) {
         fs.unlinkSync(localFileName);
       }
@@ -205,14 +194,14 @@ async function main() {
   })();
 
   // List paths
-  // console.log("# List paths\n");
-  // const listPathsResult = await fileSystemURL.listPathsSegment(
-  //   Aborter.none,
-  //   true
-  // );
-  // for (const path of listPathsResult.paths) {
-  //   console.log(`Path: ${path.name} ${JSON.stringify(path)}\n`);
-  // }
+  console.log("# List paths\n");
+  const listPathsResult = await fileSystemURL.listPathsSegment(
+    Aborter.none,
+    true
+  );
+  for (const path of listPathsResult.paths) {
+    console.log(`Path: ${path.name} ${JSON.stringify(path)}\n`);
+  }
 
   // Delete directory
   console.log("# Delete directory\n");

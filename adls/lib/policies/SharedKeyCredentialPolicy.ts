@@ -66,6 +66,7 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
     }
 
     request.headers.set(HeaderConstants.X_MS_DATE, new Date().toUTCString());
+    request.headers.remove(HeaderConstants.COOKIE);
 
     if (
       request.body &&
@@ -210,22 +211,25 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
     canonicalizedResourceString += `/${this.factory.accountName}${path}`;
 
     const queries = getURLQueries(request.url);
-    if (getURLQueries(request.url)) {
+    const lowercaseQueries: { [key: string]: string } = {};
+    if (queries) {
       const queryKeys: string[] = [];
       for (const key in queries) {
         if (queries.hasOwnProperty(key)) {
-          queryKeys.push(key);
+          const lowercaseKey = key.toLowerCase();
+          lowercaseQueries[lowercaseKey] = queries[key];
+          queryKeys.push(lowercaseKey);
         }
       }
 
       queryKeys.sort();
       for (const key of queryKeys) {
         canonicalizedResourceString += `\n${key}:${decodeURIComponent(
-          queries[key]
+          lowercaseQueries[key]
         )}`;
       }
     }
 
-    return canonicalizedResourceString.toLowerCase();
+    return canonicalizedResourceString;
   }
 }

@@ -296,7 +296,7 @@ export interface IPathUpdateOptions {
    * @type {string}
    * @memberof IPathUpdateOptions
    */
-  contentLength?: string;
+  contentLength?: number;
 
   /**
    * This parameter allows the caller to upload
@@ -975,13 +975,17 @@ export class PathURL extends StorageURL {
     action: Models.PathUpdateAction,
     options: IPathUpdateOptions = {}
   ): Promise<Models.PathUpdateResponse> {
+    const internalOptions: any = options;
+    internalOptions.contentLength = options.contentLength
+      ? options.contentLength.toString()
+      : undefined;
     return this.pathOperationsContext.update(
       action,
       this.fileSystemName,
       this.path,
       {
         abortSignal: aborter,
-        ...options
+        ...internalOptions
       }
     );
   }

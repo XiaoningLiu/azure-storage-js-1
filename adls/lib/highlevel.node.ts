@@ -105,12 +105,11 @@ async function uploadResetableStream(
   }
 
   // Create file first before uploading
-  await fileURL.create(Aborter.none, {
+  await fileURL.create(Aborter.none, Models.PathResourceType.File, {
     ifMatch: options.ifMatch,
     ifModifiedSince: options.ifModifiedSince,
     ifNoneMatch: options.ifNoneMatch,
     ifUnmodifiedSince: options.ifUnmodifiedSince,
-    resource: Models.PathResourceType.File,
     xMsCacheControl: options.xMsCacheControl,
     xMsContentDisposition: options.xMsContentDisposition,
     xMsContentEncoding: options.xMsContentEncoding,
@@ -132,7 +131,7 @@ async function uploadResetableStream(
         const end = i === numBlocks - 1 ? size : start + options.blockSize!;
         const contentLength = end - start;
         await fileURL.update(aborter, PathUpdateAction.Append, {
-          contentLength: contentLength.toString(),
+          contentLength,
           position: start,
           requestBody: () => streamFactory(start, contentLength)
         });
