@@ -1,5 +1,9 @@
 # Changelog
 
+2018.11 Version 11.1.1-preview
+
+* Exported RequestPolicyFactory, RequestPolicy and RequestPolicyOptions
+
 2018.10 Version 11.1.0-preview
 
 * Added `uploadLocalFile` global method in `highlevel.node.ts` to support parallel uploading

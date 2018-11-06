@@ -1,6 +1,6 @@
 {
   "name": "@azure/storage-adls",
-  "version": "11.1.0-preview",
+  "version": "11.1.1-preview",
   "description": "Microsoft Azure Storage SDK for JavaScript - ADLSv2",
   "main": "./dist/index.js",
   "module": "./dist-esm/lib/index.js",
