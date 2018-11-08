@@ -1,5 +1,7 @@
 # Changelog
 
+* [Breaking] Updated names of exported interfaces `IHTTPPipelineLogger` & `IHTTPClient` to `IHttpPipelineLogger` & `IHttpClient`.
+
 2018.09 10.1.0-preview
 
 * Fixed sharedkey authentication error when blob names have spaces.
