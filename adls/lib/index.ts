@@ -17,6 +17,7 @@ export * from "./policies/SharedKeyCredentialPolicy";
 export * from "./TelemetryPolicyFactory";
 export * from "./policies/TokenCredentialPolicy";
 export * from "./UniqueRequestIDPolicyFactory";
+export * from "./BrowserPolicyFactory";
 export * from "./ServiceURL";
 export * from "./StorageURL";
 export * from "./PathURL";
