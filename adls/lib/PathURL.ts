@@ -1,4 +1,5 @@
 import { HttpRequestBody, isNode, TransferProgressEvent } from "ms-rest-js";
+
 import { Aborter } from "./Aborter";
 import { FileSystemURL } from "./FileSystemURL";
 import * as Models from "./generated/lib/models";
@@ -7,7 +8,7 @@ import { IRange, rangeToString, stringToRange } from "./IRange";
 import { PathReadResponse } from "./PathReadResponse";
 import { Pipeline } from "./Pipeline";
 import { StorageURL } from "./StorageURL";
-import { appendToURLPath, getURLPathComponents } from "./utils/utils.common";
+import { appendToURLPath, getADLSv2PathFromURL, getFileSystemFromURL } from "./utils/utils.common";
 
 export interface IPathCreateOptions {
   /**
@@ -885,17 +886,9 @@ export class PathURL extends StorageURL {
   constructor(url: string, pipeline: Pipeline) {
     super(url, pipeline);
 
-    const urlPathComponents = getURLPathComponents(url);
+    this.fileSystemName = getFileSystemFromURL(url);
 
-    this.fileSystemName = urlPathComponents[0];
-    if (!this.fileSystemName) {
-      throw new RangeError(`Invalid url "${url}", file system is undefined.`);
-    }
-
-    this.path = urlPathComponents.slice(1).join("/");
-    if (!this.path) {
-      throw new RangeError(`Invalid url "${url}", path is undefined.`);
-    }
+    this.path = getADLSv2PathFromURL(url);
 
     this.pathOperationsContext = new PathOperations(this.storageClientContext);
   }
@@ -1107,7 +1100,7 @@ export class PathURL extends StorageURL {
           ifNoneMatch: options.ifNoneMatch,
           ifUnmodifiedSince: options.ifUnmodifiedSince,
           range: rangeToString({
-            count: offset + count - start + 1,
+            count: offset + count - start,
             offset: start
           })
         };

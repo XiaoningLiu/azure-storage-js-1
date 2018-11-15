@@ -1,6 +1,6 @@
 {
   "name": "@azure/storage-adls",
-  "version": "11.1.1-preview",
+  "version": "11.1.2-preview",
   "description": "Microsoft Azure Storage SDK for JavaScript - ADLSv2",
   "main": "./dist/index.js",
   "module": "./dist-esm/lib/index.js",
@@ -19,10 +19,10 @@
   "dependencies": {
     "events": "3.0.0",
     "ms-rest-js": "1.0.439",
-    "ts-node": "^7.0.1",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
+    "ts-node": "^7.0.1",
     "@types/mocha": "^5.2.5",
     "assert": "^1.4.1",
     "es6-promise": "^4.2.4",
@@ -58,7 +58,8 @@
     "build:es6": "tsc -p tsconfig.json",
     "build:autorest": "autorest ./swagger/README.md --typescript --use=@microsoft.azure/autorest.typescript@2.0.559",
     "build:browserzip": "gulp zip",
-    "prepare": "npm run build",
+    "refreshVSToken": "vsts-npm-auth -config .npmrc",
+    "prepare": "npm run build && npm run refreshVSToken",
     "clean": "rimraf dist dist-esm dist-test typings temp browser/*.js* browser/*.zip statistics.html"
   },
   "repository": {

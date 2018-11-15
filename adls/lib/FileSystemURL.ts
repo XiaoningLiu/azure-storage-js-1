@@ -1,13 +1,10 @@
 import { Aborter } from "./Aborter";
 import * as Models from "./generated/lib/models";
-import {
-  FilesystemOperations,
-  PathOperations
-} from "./generated/lib/operations";
+import { FilesystemOperations, PathOperations } from "./generated/lib/operations";
 import { Pipeline } from "./Pipeline";
 import { ServiceURL } from "./ServiceURL";
 import { StorageURL } from "./StorageURL";
-import { appendToURLPath, getURLPathComponents } from "./utils/utils.common";
+import { appendToURLPath, getFileSystemFromURL } from "./utils/utils.common";
 
 export interface IFileSystemCreateOptions {
   /**
@@ -158,12 +155,7 @@ export class FileSystemURL extends StorageURL {
   constructor(url: string, pipeline: Pipeline) {
     super(url, pipeline);
 
-    const urlPathComponents = getURLPathComponents(url);
-
-    this.fileSystemName = urlPathComponents[0];
-    if (!this.fileSystemName) {
-      throw new RangeError(`Invalid url "${url}", file system is undefined.`);
-    }
+    this.fileSystemName = getFileSystemFromURL(url);
 
     this.fileSystemOperationsContext = new FilesystemOperations(
       this.storageClientContext

@@ -1,9 +1,4 @@
-import {
-  HttpHeaders,
-  RequestPolicy,
-  RequestPolicyOptions,
-  WebResource
-} from "ms-rest-js";
+import { HttpHeaders, RequestPolicy, RequestPolicyOptions, WebResource } from "ms-rest-js";
 
 import { TokenCredential } from "../credentials/TokenCredential";
 import { HeaderConstants } from "../utils/constants";
@@ -63,6 +58,7 @@ export class TokenCredentialPolicy extends CredentialPolicy {
     if (!request.headers) {
       request.headers = new HttpHeaders();
     }
+    request.headers.remove(HeaderConstants.COOKIE);
     request.headers.set(
       HeaderConstants.AUTHORIZATION,
       `${this.authorizationScheme} ${this.tokenCredential.token}`

@@ -1,11 +1,14 @@
 import { RequestPolicy, RequestPolicyOptions, WebResource } from "ms-rest-js";
+
 import { SharedKeyCredential } from "../credentials/SharedKeyCredential";
 import { HeaderConstants } from "../utils/constants";
 import {
+  getADLSv2PathFromURL,
+  getFileSystemFromURL,
   getURLPath,
   getURLPathComponents,
   getURLQueries,
-  setURLPath
+  setURLPath,
 } from "../utils/utils.common";
 import { CredentialPolicy } from "./CredentialPolicy";
 
@@ -54,11 +57,16 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
     // however, double URI encoding will lead to 403 auth error ( "/" -> "%2F" => "%252F", "$" -> "%24" -> "%2524")
     // One solution is to add ""x-ms-skip-url-encoding": true" to the "path" parameter in the swagger
     // Following workaround is to decode first before encode to avoid the double URI encode issue
+
     const urlPathComponents = getURLPathComponents(request.url);
-    if (urlPathComponents.length > 0) {
+    // Make sure the fileSystem is valid
+    if (urlPathComponents.length > 0 && urlPathComponents[0].length > 0) {
+      const fileSystem = getFileSystemFromURL(request.url);
+      const adlsPath = getADLSv2PathFromURL(request.url);
+
       const decodedPath = [
-        decodeURIComponent(urlPathComponents[0]),
-        decodeURIComponent(urlPathComponents.slice(1).join("/"))
+        decodeURIComponent(fileSystem),
+        decodeURIComponent(adlsPath)
       ]
         .filter(word => word.length > 0)
         .join("/");

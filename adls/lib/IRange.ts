@@ -71,7 +71,7 @@ export function stringToRange(range: string): IRange {
     startAndEnd.length > 1 ? Number.parseInt(startAndEnd[1]) : undefined;
 
   return {
-    count: end ? end - offset : undefined,
+    count: end ? end - offset + 1 : undefined,
     offset
   };
 }

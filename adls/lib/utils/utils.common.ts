@@ -122,8 +122,15 @@ export function getURLStorageAccount(url: string): string | undefined {
 /**
  * Get the url path components from an URL string.
  *
- * For example, url "https://myaccount.dfs.core.windows.net/myfilesystem/directory/file" will return
- * ["myfilesystem", "directory", "file"]
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory/file" returns ["myfilesystem", "directory", "file"]
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory/" returns ["myfilesystem", "directory", ""]
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory" returns ["myfilesystem", "directory"]
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem//" returns ["myfilesystem", "", ""]
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/" returns ["myfilesystem", ""]
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem" returns ["myfilesystem"]
+ * - "https://myaccount.dfs.core.windows.net/" returns [""]
+ * - "https://myaccount.dfs.core.windows.net" returns []
+ *
  *
  * @export
  * @param {string} url Source URL string
@@ -135,7 +142,56 @@ export function getURLPathComponents(url: string): string[] {
     return [];
   }
 
-  return urlPath.split("/").filter(word => word.length > 0);
+  return urlPath.split("/").slice(1);
+}
+
+/**
+ * Get the filesystem name from an URL.
+ *
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory/file" returns "myfilesystem"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory/" returns "myfilesystem"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory" returns "myfilesystem"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem//" returns "myfilesystem"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/" returns "myfilesystem"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem" returns "myfilesystem"
+ * - "https://myaccount.dfs.core.windows.net/" throws RangeError(`Invalid url "${url}", file system is undefined.`)
+ * - "https://myaccount.dfs.core.windows.net" throws RangeError(`Invalid url "${url}", file system is undefined.`)
+ *
+ * @export
+ * @param {string} url
+ * @returns {string}
+ */
+export function getFileSystemFromURL(url: string): string {
+  const pathComponents = getURLPathComponents(url);
+  if (pathComponents.length > 0 && pathComponents[0].length > 0) {
+    return pathComponents[0];
+  }
+
+  throw new RangeError(`Invalid url "${url}", file system is undefined.`);
+}
+
+/**
+ * Get the ADLSv2 path from an URL. Must be a valid ADLSv2 path URL with filesystem.
+ *
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory/file" returns "directory/file"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory/" returns "directory/"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/directory" returns "directory"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem//" returns "/"
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem/" returns "" // root directory
+ * - "https://myaccount.dfs.core.windows.net/myfilesystem" returns "" // root directory
+ * - "https://myaccount.dfs.core.windows.net/" throws RangeError(`Invalid url "${url}", file system is undefined.`)
+ * - "https://myaccount.dfs.core.windows.net" throws RangeError(`Invalid url "${url}", file system is undefined.`)
+ *
+ * @export
+ * @param {string} url
+ * @returns {string}
+ */
+export function getADLSv2PathFromURL(url: string): string {
+  // Valid filesystem
+  getFileSystemFromURL(url);
+
+  const pathComponents = getURLPathComponents(url);
+  return pathComponents.slice(1).join("/");
 }
 
 /**

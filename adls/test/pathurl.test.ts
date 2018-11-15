@@ -151,6 +151,11 @@ describe("PathURL", () => {
     assert.deepStrictEqual(properties.xMsProperties, response.xMsProperties);
   });
 
+  it("get root directory properties", async () => {
+    const rootDirURL = PathURL.fromFileSystemURL(fileSystemURL, "");
+    await rootDirURL.getProperties(Aborter.none, undefined);
+  });
+
   it("get properties", async () => {
     assert.ok(
       true,
@@ -256,6 +261,40 @@ describe("PathURL", () => {
     assert.deepStrictEqual(
       await bodyToString(response, hello.length + world.length),
       hello + world
+    );
+  });
+
+  it.only("read partial content", async () => {
+    const file = getUniqueName("file");
+    const fileURL = PathURL.fromFileSystemURL(fileSystemURL, file);
+    await fileURL.create(Aborter.none, Models.PathResourceType.File);
+
+    const hello = "Hello ";
+    const world = "world";
+    await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
+      contentLength: hello.length,
+      position: 0,
+      requestBody: hello
+    });
+    await fileURL.update(Aborter.none, Models.PathUpdateAction.Append, {
+      contentLength: world.length,
+      position: hello.length,
+      requestBody: world
+    });
+    await fileURL.update(Aborter.none, Models.PathUpdateAction.Flush, {
+      contentLength: 0,
+      position: world.length + hello.length
+    });
+
+    const response = await fileURL.read(Aborter.none, {
+      range: {
+        count: 6,
+        offset: 0
+      }
+    });
+    assert.deepStrictEqual(
+      await bodyToString(response, hello.length + world.length),
+      hello
     );
   });
 });

@@ -1,5 +1,12 @@
 # Changelog
 
+2018.11 Version 11.1.2-preview
+
+* Fixed Path.URL read() bug when downloading stream retries.
+* Allowed create a PathURL to root directory.
+* Fixed stringToRange bug.
+* Removed cookie header.
+
 2018.11 Version 11.1.1-preview
 
 * Exported RequestPolicyFactory, RequestPolicy and RequestPolicyOptions
