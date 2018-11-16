@@ -1,13 +1,8 @@
 import { HttpResponse, isNode, TransferProgressEvent } from "ms-rest-js";
-import {
-  PathReadHeaders,
-  PathReadResponse as IPathReadResponse
-} from "./generated/lib/models";
-import {
-  ReadableStreamGetter,
-  RetriableReadableStream
-} from "./utils/RetriableReadableStream";
+
 import { Aborter } from "./Aborter";
+import { PathReadHeaders, PathReadResponse as IPathReadResponse } from "./generated/lib/models";
+import { ReadableStreamGetter, RetriableReadableStream } from "./utils/RetriableReadableStream";
 
 /**
  * ONLY AVAILABLE IN NODE.JS RUNTIME.
@@ -44,7 +39,7 @@ export class PathReadResponse implements IPathReadResponse {
     return this.originalResponse.contentLanguage;
   }
 
-  public get contentLength(): string | undefined {
+  public get contentLength(): number | undefined {
     return this.originalResponse.contentLength;
   }
 

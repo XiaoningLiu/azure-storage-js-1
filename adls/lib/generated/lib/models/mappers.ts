@@ -478,7 +478,7 @@ export const PathCreateHeaders: msRest.CompositeMapper = {
       contentLength: {
         serializedName: "content-length",
         type: {
-          name: "String"
+          name: "Number"
         }
       }
     }
@@ -542,7 +542,7 @@ export const PathUpdateHeaders: msRest.CompositeMapper = {
       contentLength: {
         serializedName: "content-length",
         type: {
-          name: "String"
+          name: "Number"
         }
       },
       contentRange: {
@@ -670,7 +670,7 @@ export const PathReadHeaders: msRest.CompositeMapper = {
       contentLength: {
         serializedName: "content-length",
         type: {
-          name: "String"
+          name: "Number"
         }
       },
       contentRange: {
@@ -788,7 +788,7 @@ export const PathGetPropertiesHeaders: msRest.CompositeMapper = {
       contentLength: {
         serializedName: "content-length",
         type: {
-          name: "String"
+          name: "Number"
         }
       },
       contentRange: {

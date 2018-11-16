@@ -1,11 +1,17 @@
 # Changelog
 
-2018.11 Version 11.1.2-preview
+2018.11 Version 12.0.0-preview
 
-* Fixed Path.URL read() bug when downloading stream retries.
-* Allowed create a PathURL to root directory.
-* Fixed stringToRange bug.
-* Removed cookie header.
+* Updated API version to 2018-11-09.
+  * Added support for upn setting. Supported methods are `FileSystemURL.listPathsSegment()`, `PathURL.getProperties()`.
+  * `ConentLength` in response object now is `number` instead of `string`.
+  * Added `xMsLeaseId` parameter for `PathURL.read()`, `PathURL.getProperties()` methods.
+  * [Breaking] Removed `xMsProposedLeaseId` parameter for `PathCreate` operation.
+  * [Breaking] Removed `xMsLeaseAction` parameter for `PathUpdate` operation.
+* Fixed `PathURL.read()` bug when downloading stream retries.
+* Allowed create a `PathURL` to root directory like "http://account.dfs.core.windows.net/filesystem//".
+* Fixed a `stringToRange` bug.
+* Removed cookie header when using `TokenCredential`.
 
 2018.11 Version 11.1.1-preview
 

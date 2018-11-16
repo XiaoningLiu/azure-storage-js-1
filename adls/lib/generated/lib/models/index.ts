@@ -365,6 +365,15 @@ export interface PathListOptionalParams extends msRest.RequestOptionsBase {
    */
   maxResults?: number;
   /**
+   * @member {boolean} [upn] Optional. Valid only when Hierarchical Namespace
+   * is enabled for the account. If "true", the identity values returned in the
+   * owner and group fields of each list entry will be transformed from Azure
+   * Active Directory Object IDs to User Principal Names.  If "false", the
+   * values will be returned as Azure Active Directory Object IDs. The default
+   * value is false.
+   */
+  upn?: boolean;
+  /**
    * @member {string} [xMsClientRequestId] A UUID recorded in the analytics
    * logs for troubleshooting and correlation.
    */
@@ -481,12 +490,6 @@ export interface PathCreateOptionalParams extends msRest.RequestOptionsBase {
    */
   xMsLeaseId?: string;
   /**
-   * @member {string} [xMsProposedLeaseId] Optional for create operations.
-   * Required when "x-ms-lease-action" is used.  A lease will be acquired using
-   * the proposed ID when the resource is created.
-   */
-  xMsProposedLeaseId?: string;
-  /**
    * @member {string} [xMsSourceLeaseId] Optional for rename operations.  A
    * lease ID for the source path.  The source path must have an active lease
    * and the lease ID must match.
@@ -510,13 +513,14 @@ export interface PathCreateOptionalParams extends msRest.RequestOptionsBase {
   xMsPermissions?: string;
   /**
    * @member {string} [xMsUmask] Optional and only valid if Hierarchical
-   * Namespace is enabled for the account. This umask restricts permission
-   * settings for file and directory, and will only be applied when default Acl
-   * does not exist in parent directory. If the umask bit has set, it means
-   * that the corresponding permission will be disabled. Otherwise the
-   * corresponding permission will be determined by the permission. A 4-digit
-   * octal notation (e.g. 0022) is supported here. If no umask was specified, a
-   * default umask - 0027 will be used.
+   * Namespace is enabled for the account. When creating a file or directory
+   * and the parent folder does not have a default ACL, the umask restricts the
+   * permissions of the file or directory to be created.  The resulting
+   * permission is given by p & ^u, where p is the permission and u is the
+   * umask.  For example, if p is 0777 and u is 0057, then the resulting
+   * permission is 0720.  The default permission is 0777 for a directory and
+   * 0666 for a file.  The default umask is 0027.  The umask must be specified
+   * in 4-digit octal notation (e.g. 0766).
    */
   xMsUmask?: string;
   /**
@@ -619,17 +623,11 @@ export interface PathUpdateOptionalParams extends msRest.RequestOptionsBase {
    */
   retainUncommittedData?: boolean;
   /**
-   * @member {string} [contentLength] Required for "Append Data" and "Flush
+   * @member {number} [contentLength] Required for "Append Data" and "Flush
    * Data".  Must be 0 for "Flush Data".  Must be the length of the request
    * content in bytes for "Append Data".
    */
-  contentLength?: string;
-  /**
-   * @member {PathUpdateLeaseAction} [xMsLeaseAction] Optional.  The lease
-   * action can be "renew" to renew an existing lease or "release" to release a
-   * lease. Possible values include: 'renew', 'release'
-   */
-  xMsLeaseAction?: PathUpdateLeaseAction;
+  contentLength?: number;
   /**
    * @member {string} [xMsLeaseId] The lease ID must be specified if there is
    * an active lease.
@@ -868,6 +866,13 @@ export interface PathReadOptionalParams extends msRest.RequestOptionsBase {
    */
   range?: string;
   /**
+   * @member {string} [xMsLeaseId] Optional. If this header is specified, the
+   * operation will be performed only if both of the following conditions are
+   * met: i) the path's lease is currently active and ii) the lease ID
+   * specified in the request matches that of the path.
+   */
+  xMsLeaseId?: string;
+  /**
    * @member {string} [ifMatch] Optional.  An ETag value. Specify this header
    * to perform the operation only if the resource's ETag matches the value
    * specified. The ETag must be specified in quotes.
@@ -921,11 +926,29 @@ export interface PathReadOptionalParams extends msRest.RequestOptionsBase {
 export interface PathGetPropertiesOptionalParams extends msRest.RequestOptionsBase {
   /**
    * @member {PathGetPropertiesAction} [action] Optional. If the value is
-   * "getAccessControl" the access control list is returned in the response
-   * headers (Hierarchical Namespace must be enabled for the account). Possible
-   * values include: 'getAccessControl'
+   * "getStatus" only the system defined properties for the path are returned.
+   * If the value is "getAccessControl" the access control list is returned in
+   * the response headers (Hierarchical Namespace must be enabled for the
+   * account), otherwise the properties are returned. Possible values include:
+   * 'getAccessControl', 'getStatus'
    */
   action?: PathGetPropertiesAction;
+  /**
+   * @member {boolean} [upn] Optional. Valid only when Hierarchical Namespace
+   * is enabled for the account. If "true", the identity values returned in the
+   * x-ms-owner, x-ms-group, and x-ms-acl response headers will be transformed
+   * from Azure Active Directory Object IDs to User Principal Names.  If
+   * "false", the values will be returned as Azure Active Directory Object IDs.
+   * The default value is false.
+   */
+  upn?: boolean;
+  /**
+   * @member {string} [xMsLeaseId] Optional. If this header is specified, the
+   * operation will be performed only if both of the following conditions are
+   * met: i) the path's lease is currently active and ii) the lease ID
+   * specified in the request matches that of the path.
+   */
+  xMsLeaseId?: string;
   /**
    * @member {string} [ifMatch] Optional.  An ETag value. Specify this header
    * to perform the operation only if the resource's ETag matches the value
@@ -1314,9 +1337,9 @@ export interface PathCreateHeaders {
    */
   xMsContinuation?: string;
   /**
-   * @member {string} [contentLength] The size of the resource in bytes.
+   * @member {number} [contentLength] The size of the resource in bytes.
    */
-  contentLength?: string;
+  contentLength?: number;
 }
 
 /**
@@ -1372,9 +1395,9 @@ export interface PathUpdateHeaders {
    */
   contentLanguage?: string;
   /**
-   * @member {string} [contentLength] The size of the resource in bytes.
+   * @member {number} [contentLength] The size of the resource in bytes.
    */
-  contentLength?: string;
+  contentLength?: number;
   /**
    * @member {string} [contentRange] Indicates the range of bytes returned in
    * the event that the client requested a subset of the file by setting the
@@ -1487,9 +1510,9 @@ export interface PathReadHeaders {
    */
   contentLanguage?: string;
   /**
-   * @member {string} [contentLength] The size of the resource in bytes.
+   * @member {number} [contentLength] The size of the resource in bytes.
    */
-  contentLength?: string;
+  contentLength?: number;
   /**
    * @member {string} [contentRange] Indicates the range of bytes returned in
    * the event that the client requested a subset of the file by setting the
@@ -1592,9 +1615,9 @@ export interface PathGetPropertiesHeaders {
    */
   contentLanguage?: string;
   /**
-   * @member {string} [contentLength] The size of the resource in bytes.
+   * @member {number} [contentLength] The size of the resource in bytes.
    */
-  contentLength?: string;
+  contentLength?: number;
   /**
    * @member {string} [contentRange] Indicates the range of bytes returned in
    * the event that the client requested a subset of the file by setting the
@@ -1753,17 +1776,6 @@ export enum PathUpdateAction {
 }
 
 /**
- * Defines values for PathUpdateLeaseAction.
- * Possible values include: 'renew', 'release'
- * @readonly
- * @enum {string}
- */
-export enum PathUpdateLeaseAction {
-  Renew = 'renew',
-  Release = 'release',
-}
-
-/**
  * Defines values for PathLeaseAction.
  * Possible values include: 'acquire', 'break', 'change', 'renew', 'release'
  * @readonly
@@ -1779,12 +1791,13 @@ export enum PathLeaseAction {
 
 /**
  * Defines values for PathGetPropertiesAction.
- * Possible values include: 'getAccessControl'
+ * Possible values include: 'getAccessControl', 'getStatus'
  * @readonly
  * @enum {string}
  */
 export enum PathGetPropertiesAction {
   GetAccessControl = 'getAccessControl',
+  GetStatus = 'getStatus',
 }
 
 /**

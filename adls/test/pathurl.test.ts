@@ -151,9 +151,18 @@ describe("PathURL", () => {
     assert.deepStrictEqual(properties.xMsProperties, response.xMsProperties);
   });
 
-  it("get root directory properties", async () => {
-    const rootDirURL = PathURL.fromFileSystemURL(fileSystemURL, "");
-    await rootDirURL.getProperties(Aborter.none, undefined);
+  it("get root directory acl", async () => {
+    let rootDirURL = PathURL.fromFileSystemURL(fileSystemURL, "/");
+    await rootDirURL.getProperties(
+      Aborter.none,
+      Models.PathGetPropertiesAction.GetAccessControl
+    );
+
+    rootDirURL = new PathURL(fileSystemURL.url + "//", fileSystemURL.pipeline);
+    await rootDirURL.getProperties(
+      Aborter.none,
+      Models.PathGetPropertiesAction.GetAccessControl
+    );
   });
 
   it("get properties", async () => {
@@ -169,15 +178,11 @@ describe("PathURL", () => {
     await fileURL.create(Aborter.none, Models.PathResourceType.File);
 
     const xMsAcl = "user::rwx,group::r-x,other::-w-";
-    const xMsOwner = "xiaonli@microsoft.com";
-    const xMsGroup = "mygroup";
     await fileURL.update(
       Aborter.none,
       Models.PathUpdateAction.SetAccessControl,
       {
-        xMsAcl,
-        xMsGroup,
-        xMsOwner
+        xMsAcl
       }
     );
 
@@ -188,8 +193,6 @@ describe("PathURL", () => {
 
     assert.deepStrictEqual(properties.xMsAcl, xMsAcl);
     assert.deepStrictEqual(properties.xMsPermissions, "rwxr-x-w-");
-    assert.deepStrictEqual(properties.xMsOwner, xMsOwner);
-    assert.deepStrictEqual(properties.xMsGroup, xMsGroup);
   });
 
   it("get access control", async () => {
@@ -264,7 +267,7 @@ describe("PathURL", () => {
     );
   });
 
-  it.only("read partial content", async () => {
+  it("read partial content", async () => {
     const file = getUniqueName("file");
     const fileURL = PathURL.fromFileSystemURL(fileSystemURL, file);
     await fileURL.create(Aborter.none, Models.PathResourceType.File);

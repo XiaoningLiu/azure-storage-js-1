@@ -48,7 +48,8 @@ export const action1: msRest.OperationQueryParameter = {
     type: {
       name: "Enum",
       allowedValues: [
-        "getAccessControl"
+        "getAccessControl",
+        "getStatus"
       ]
     }
   }
@@ -108,8 +109,11 @@ export const contentLength: msRest.OperationParameter = {
   ],
   mapper: {
     serializedName: "Content-Length",
+    constraints: {
+      InclusiveMinimum: 0
+    },
     type: {
-      name: "String"
+      name: "Number"
     }
   }
 };
@@ -149,17 +153,7 @@ export const dnsSuffix: msRest.OperationURLParameter = {
   },
   skipEncoding: true
 };
-export const filesystem0: msRest.OperationURLParameter = {
-  parameterPath: "filesystem",
-  mapper: {
-    required: true,
-    serializedName: "filesystem",
-    type: {
-      name: "String"
-    }
-  }
-};
-export const filesystem1: msRest.OperationURLParameter = {
+export const filesystem: msRest.OperationURLParameter = {
   parameterPath: "filesystem",
   mapper: {
     required: true,
@@ -388,6 +382,18 @@ export const timeout: msRest.OperationQueryParameter = {
     }
   }
 };
+export const upn: msRest.OperationQueryParameter = {
+  parameterPath: [
+    "options",
+    "upn"
+  ],
+  mapper: {
+    serializedName: "upn",
+    type: {
+      name: "Boolean"
+    }
+  }
+};
 export const xMsAcl: msRest.OperationParameter = {
   parameterPath: [
     "options",
@@ -499,23 +505,7 @@ export const xMsGroup: msRest.OperationParameter = {
     }
   }
 };
-export const xMsLeaseAction0: msRest.OperationParameter = {
-  parameterPath: [
-    "options",
-    "xMsLeaseAction"
-  ],
-  mapper: {
-    serializedName: "x-ms-lease-action",
-    type: {
-      name: "Enum",
-      allowedValues: [
-        "renew",
-        "release"
-      ]
-    }
-  }
-};
-export const xMsLeaseAction1: msRest.OperationParameter = {
+export const xMsLeaseAction: msRest.OperationParameter = {
   parameterPath: "xMsLeaseAction",
   mapper: {
     required: true,

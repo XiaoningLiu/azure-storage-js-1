@@ -1,5 +1,5 @@
-export const SDK_VERSION: string = "11.1.2-preview";
-export const SERVICE_VERSION: string = "2018-06-17";
+export const SDK_VERSION: string = "12.0.0-preview";
+export const SERVICE_VERSION: string = "2018-11-09";
 
 export const ADLS_MAX_APPEND_DATA_NUMBER: number = 50000;
 export const ADLS_MAX_FILE_BYTES: number =

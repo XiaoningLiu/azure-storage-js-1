@@ -91,6 +91,18 @@ export interface IFileSystemListPathsOptions {
    * @memberof IFileSystemListPathsOptions
    */
   maxResults?: number;
+  /**
+   * Optional. Valid only when Hierarchical Namespace
+   * is enabled for the account. If "true", the identity values returned in the
+   * owner and group fields of each list entry will be transformed from Azure
+   * Active Directory Object IDs to User Principal Names.  If "false", the
+   * values will be returned as Azure Active Directory Object IDs. The default
+   * value is false.
+   *
+   * @type {boolean}
+   * @memberof IFileSystemListPathsOptions
+   */
+  upn?: boolean;
 }
 
 /**

@@ -147,16 +147,6 @@ export interface IPathCreateOptions {
   xMsLeaseId?: string;
 
   /**
-   * Optional for create operations.
-   * Required when "x-ms-lease-action" is used. A lease will be acquired using
-   * the proposed ID when the resource is created.
-   *
-   * @type {string}
-   * @memberof IPathCreateOptions
-   */
-  xMsProposedLeaseId?: string;
-
-  /**
    * Optional for rename operations.  A
    * lease ID for the source path.  The source path must have an active lease
    * and the lease ID must match.
@@ -192,13 +182,14 @@ export interface IPathCreateOptions {
 
   /**
    * Optional and only valid if Hierarchical
-   * Namespace is enabled for the account. This umask restricts permission
-   * settings for file and directory, and will only be applied when default Acl
-   * does not exist in parent directory. If the umask bit has set, it means
-   * that the corresponding permission will be disabled. Otherwise the
-   * corresponding permission will be determined by the permission. A 4-digit
-   * octal notation (e.g. 0022) is supported here. If no umask was specified, a
-   * default umask - 0027 will be used.
+   * Namespace is enabled for the account. When creating a file or directory
+   * and the parent folder does not have a default ACL, the umask restricts the
+   * permissions of the file or directory to be created.  The resulting
+   * permission is given by p & ^u, where p is the permission and u is the
+   * umask.  For example, if p is 0777 and u is 0057, then the resulting
+   * permission is 0720.  The default permission is 0777 for a directory and
+   * 0666 for a file.  The default umask is 0027.  The umask must be specified
+   * in 4-digit octal notation (e.g. 0766).
    *
    * @type {string}
    * @memberof IPathCreateOptions
@@ -328,16 +319,6 @@ export interface IPathUpdateOptions {
    * @memberof IPathUpdateOptions
    */
   retainUncommittedData?: boolean;
-
-  /**
-   * Optional. The lease
-   * action can be "renew" to renew an existing lease or "release" to release a
-   * lease. Possible values include: 'renew', 'release'
-   *
-   * @type {Models.PathUpdateLeaseAction}
-   * @memberof IPathUpdateOptions
-   */
-  xMsLeaseAction?: Models.PathUpdateLeaseAction;
 
   /**
    * Optional. The lease ID must be specified if there is
@@ -627,6 +608,17 @@ export interface IPathReadOptions {
   range?: IRange | string;
 
   /**
+   * Optional. If this header is specified, the
+   * operation will be performed only if both of the following conditions are
+   * met: i) the path's lease is currently active and ii) the lease ID
+   * specified in the request matches that of the path.
+   *
+   * @type {string}
+   * @memberof IPathReadOptions
+   */
+  xMsLeaseId?: string;
+
+  /**
    * Optional. An ETag value. Specify this header
    * to perform the operation only if the resource's ETag matches the value
    * specified. The ETag must be specified in quotes.
@@ -691,6 +683,30 @@ export interface IPathReadOptions {
 }
 
 export interface IPathGetPropertiesOptions {
+  /**
+   * Optional. Valid only when Hierarchical Namespace
+   * is enabled for the account. If "true", the identity values returned in the
+   * x-ms-owner, x-ms-group, and x-ms-acl response headers will be transformed
+   * from Azure Active Directory Object IDs to User Principal Names.  If
+   * "false", the values will be returned as Azure Active Directory Object IDs.
+   * The default value is false.
+   *
+   * @type {boolean}
+   * @memberof IPathGetPropertiesOptions
+   */
+  upn?: boolean;
+
+  /**
+   * Optional. If this header is specified, the
+   * operation will be performed only if both of the following conditions are
+   * met: i) the path's lease is currently active and ii) the lease ID
+   * specified in the request matches that of the path.
+   *
+   * @type {string}
+   * @memberof IPathGetPropertiesOptions
+   */
+  xMsLeaseId?: string;
+
   /**
    * Optional. An ETag value. Specify this header
    * to perform the operation only if the resource's ETag matches the value
@@ -968,17 +984,13 @@ export class PathURL extends StorageURL {
     action: Models.PathUpdateAction,
     options: IPathUpdateOptions = {}
   ): Promise<Models.PathUpdateResponse> {
-    const internalOptions: any = options;
-    internalOptions.contentLength = options.contentLength
-      ? options.contentLength.toString()
-      : undefined;
     return this.pathOperationsContext.update(
       action,
       this.fileSystemName,
       this.path,
       {
         abortSignal: aborter,
-        ...internalOptions
+        ...options
       }
     );
   }
@@ -1053,7 +1065,8 @@ export class PathURL extends StorageURL {
       ifModifiedSince: options.ifModifiedSince,
       ifNoneMatch: options.ifNoneMatch,
       ifUnmodifiedSince: options.ifUnmodifiedSince,
-      range
+      range,
+      xMsLeaseId: options.xMsLeaseId
     };
 
     // Leverage build-in progress handler for browsers
@@ -1083,7 +1096,7 @@ export class PathURL extends StorageURL {
     }
 
     let offset = 0; // Default offset
-    let count = Number.parseInt(response.contentLength); // Count to read
+    let count = response.contentLength; // Count to read
     if (range) {
       const rangeObject = stringToRange(range);
       offset = rangeObject.offset;
@@ -1102,7 +1115,8 @@ export class PathURL extends StorageURL {
           range: rangeToString({
             count: offset + count - start,
             offset: start
-          })
+          }),
+          xMsLeaseId: options.xMsLeaseId
         };
 
         // console.log(
@@ -1123,19 +1137,22 @@ export class PathURL extends StorageURL {
   }
 
   /**
-   * Get the properties for a file or directory, and optionally include the access control list.
-   * This operation supports conditional HTTP requests.
+   * Get Properties returns all system and user defined properties for a path. Get Status returns all
+   * system defined properties for a path. Get Access Control List returns the access control list
+   * for a path. This operation supports conditional HTTP requests.
    *
-   * @summary Get Properties | Get Access Control List
+   * @summary Get Properties | Get Status | Get Access Control List
    *
    * @see https://docs.microsoft.com/en-us/rest/api/storageservices/datalakestoragegen2/path/getproperties
    *
    * @param {Aborter} aborter Create a new Aborter instance with Aborter.none or Aborter.timeout(),
    *                          goto documents of Aborter for more examples about request cancellation
    * @param {Models.PathGetPropertiesAction} [action] Optional. If the value is
-   * "getAccessControl" the access control list is returned in the response
-   * headers (Hierarchical Namespace must be enabled for the account). Possible
-   * values include: 'getAccessControl'
+   * "getStatus" only the system defined properties for the path are returned.
+   * If the value is "getAccessControl" the access control list is returned in
+   * the response headers (Hierarchical Namespace must be enabled for the
+   * account), otherwise the properties are returned. Possible values include:
+   * 'getAccessControl', 'getStatus'
    * @param {IPathGetPropertiesOptions} [options={}]
    * @returns {Promise<Models.PathGetPropertiesResponse>}
    * @memberof PathURL

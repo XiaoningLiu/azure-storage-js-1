@@ -253,7 +253,7 @@ const createOperationSpec: msRest.OperationSpec = {
   urlParameters: [
     Parameters.accountName,
     Parameters.dnsSuffix,
-    Parameters.filesystem0
+    Parameters.filesystem
   ],
   queryParameters: [
     Parameters.resource1,
@@ -282,7 +282,7 @@ const setPropertiesOperationSpec: msRest.OperationSpec = {
   urlParameters: [
     Parameters.accountName,
     Parameters.dnsSuffix,
-    Parameters.filesystem0
+    Parameters.filesystem
   ],
   queryParameters: [
     Parameters.resource1,
@@ -313,7 +313,7 @@ const getPropertiesOperationSpec: msRest.OperationSpec = {
   urlParameters: [
     Parameters.accountName,
     Parameters.dnsSuffix,
-    Parameters.filesystem0
+    Parameters.filesystem
   ],
   queryParameters: [
     Parameters.resource1,
@@ -341,7 +341,7 @@ const deleteMethodOperationSpec: msRest.OperationSpec = {
   urlParameters: [
     Parameters.accountName,
     Parameters.dnsSuffix,
-    Parameters.filesystem0
+    Parameters.filesystem
   ],
   queryParameters: [
     Parameters.resource1,
