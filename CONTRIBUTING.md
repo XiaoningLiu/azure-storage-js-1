@@ -40,16 +40,10 @@ For example, you can create following CORS settings for debugging. But please cu
 
 ### Building
 
-This project is based on TypeScript. For Node.js, generate commonJS module formats, build with:
+This project is based on TypeScript. Build with:
 
 ```bash
-npm run build:cjs
-```
-
-Generate JavaScript bundles for browsers:
-
-```bash
-npm run build:browser
+npm run build
 ```
 
 ### Running
@@ -58,6 +52,7 @@ To actually run tests in Node.js:
 
 ```bash
 npm install
+npm run build
 npm run test:node
 ```
 
@@ -65,6 +60,7 @@ Run tests in Browsers. After installed Chrome, the default testing browser:
 
 ```bash
 npm install
+npm run build
 npm test:browser
 ```
 
