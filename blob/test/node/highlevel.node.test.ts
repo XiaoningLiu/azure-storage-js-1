@@ -189,7 +189,10 @@ describe("Highlevel", () => {
 
     const downloadResponse = await blockBlobURL.download(Aborter.none, 0);
 
-    const downloadFilePath = path.join("./", getUniqueName("downloadFile"));
+    const downloadFilePath = path.join(
+      tempFolderPath,
+      getUniqueName("downloadFile")
+    );
     await readStreamToLocalFile(
       downloadResponse.readableStreamBody!,
       downloadFilePath
@@ -217,7 +220,10 @@ describe("Highlevel", () => {
 
     const downloadResponse = await blockBlobURL.download(Aborter.none, 0);
 
-    const downloadFilePath = path.join("./", getUniqueName("downloadFile"));
+    const downloadFilePath = path.join(
+      tempFolderPath,
+      getUniqueName("downloadFile")
+    );
     await readStreamToLocalFile(
       downloadResponse.readableStreamBody!,
       downloadFilePath
