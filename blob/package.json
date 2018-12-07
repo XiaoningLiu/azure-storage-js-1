@@ -1,6 +1,6 @@
 {
   "name": "@azure/storage-blob",
-  "version": "10.2.0-preview",
+  "version": "10.3.0",
   "description": "Microsoft Azure Storage SDK for JavaScript - Blob",
   "main": "./dist/index.js",
   "module": "./dist-esm/lib/index.js",
@@ -97,7 +97,8 @@
     "Node.js",
     "TypeScript",
     "JavaScript",
-    "Browser"
+    "Browser",
+    "JS"
   ],
   "author": "Microsoft Corporation",
   "license": "MIT",
