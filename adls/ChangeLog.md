@@ -1,5 +1,10 @@
 # Changelog
 
+2019.01 Version 12.1.0-preview
+
+* Added support for $ started filesystems.
+* Added support for `close` parameter for `PathUpdate` options.
+
 2018.11 Version 12.0.0-preview
 
 * Updated API version to 2018-11-09.

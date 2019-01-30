@@ -66,6 +66,18 @@ export const cacheControl: msRest.OperationParameter = {
     }
   }
 };
+export const close: msRest.OperationQueryParameter = {
+  parameterPath: [
+    "options",
+    "close"
+  ],
+  mapper: {
+    serializedName: "close",
+    type: {
+      name: "Boolean"
+    }
+  }
+};
 export const contentDisposition: msRest.OperationParameter = {
   parameterPath: [
     "options",
@@ -161,7 +173,7 @@ export const filesystem: msRest.OperationURLParameter = {
     constraints: {
       MaxLength: 63,
       MinLength: 3,
-      Pattern: /^[a-z0-9](?!.*--)[-a-z0-9]{1,61}[a-z0-9]$/
+      Pattern: /^[$a-z0-9](?!.*--)[-a-z0-9]{1,61}[a-z0-9]$/
     },
     type: {
       name: "String"

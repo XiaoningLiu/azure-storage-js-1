@@ -1,6 +1,6 @@
 import * as assert from "assert";
 
-import { Models } from "../lib";
+import { Models, RestError } from "../lib";
 import { Aborter } from "../lib/Aborter";
 import { FileSystemURL } from "../lib/FileSystemURL";
 import { PathURL } from "../lib/PathURL";
@@ -26,6 +26,19 @@ describe("FileSystemURL", () => {
       true,
       "FileSystemURL.create should be already covered in beforeEach"
     );
+  });
+
+  it("create with $web filesystem", async () => {
+    const fileSystemURlDollar = FileSystemURL.fromServiceURL(serviceURL, "$web");
+    try {
+      await fileSystemURlDollar.getProperties(Aborter.none);
+    } catch (err) {
+      if ((err as RestError).statusCode === 404) {
+        await fileSystemURlDollar.create(Aborter.none);
+      }
+
+      await fileSystemURlDollar.getProperties(Aborter.none);
+    }
   });
 
   it("create with all parameter configured", async () => {

@@ -453,6 +453,7 @@ const updateOperationSpec: msRest.OperationSpec = {
     Parameters.action0,
     Parameters.position,
     Parameters.retainUncommittedData,
+    Parameters.close,
     Parameters.timeout
   ],
   headerParameters: [

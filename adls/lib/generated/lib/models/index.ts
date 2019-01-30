@@ -198,7 +198,9 @@ export interface FilesystemCreateOptionalParams extends msRest.RequestOptionsBas
   /**
    * @member {string} [xMsProperties] User-defined properties to be stored with
    * the filesystem, in the format of a comma-separated list of name and value
-   * pairs "n1=v1, n2=v2, ...", where each value is base64 encoded.
+   * pairs "n1=v1, n2=v2, ...", where each value is a base64 encoded string.
+   * Note that the string may only contain ASCII characters in the ISO-8859-1
+   * character set.
    */
   xMsProperties?: string;
   /**
@@ -231,12 +233,13 @@ export interface FilesystemSetPropertiesOptionalParams extends msRest.RequestOpt
   /**
    * @member {string} [xMsProperties] Optional. User-defined properties to be
    * stored with the filesystem, in the format of a comma-separated list of
-   * name and value pairs "n1=v1, n2=v2, ...", where each value is base64
-   * encoded.  If the filesystem exists, any properties not included in the
-   * list will be removed.  All properties are removed if the header is
-   * omitted.  To merge new and existing properties, first get all existing
-   * properties and the current E-Tag, then make a conditional request with the
-   * E-Tag and include values for all properties.
+   * name and value pairs "n1=v1, n2=v2, ...", where each value is a base64
+   * encoded string. Note that the string may only contain ASCII characters in
+   * the ISO-8859-1 character set.  If the filesystem exists, any properties
+   * not included in the list will be removed.  All properties are removed if
+   * the header is omitted.  To merge new and existing properties, first get
+   * all existing properties and the current E-Tag, then make a conditional
+   * request with the E-Tag and include values for all properties.
    */
   xMsProperties?: string;
   /**
@@ -366,11 +369,12 @@ export interface PathListOptionalParams extends msRest.RequestOptionsBase {
   maxResults?: number;
   /**
    * @member {boolean} [upn] Optional. Valid only when Hierarchical Namespace
-   * is enabled for the account. If "true", the identity values returned in the
-   * owner and group fields of each list entry will be transformed from Azure
-   * Active Directory Object IDs to User Principal Names.  If "false", the
-   * values will be returned as Azure Active Directory Object IDs. The default
-   * value is false.
+   * is enabled for the account. If "true", the user identity values returned
+   * in the owner and group fields of each list entry will be transformed from
+   * Azure Active Directory Object IDs to User Principal Names.  If "false",
+   * the values will be returned as Azure Active Directory Object IDs. The
+   * default value is false. Note that group and application Object IDs are not
+   * translated because they do not have unique friendly names.
    */
   upn?: boolean;
   /**
@@ -480,7 +484,9 @@ export interface PathCreateOptionalParams extends msRest.RequestOptionsBase {
    * renamed.  The value must have the following format:
    * "/{filesysystem}/{path}".  If "x-ms-properties" is specified, the
    * properties will overwrite the existing properties; otherwise, the existing
-   * properties will be preserved.
+   * properties will be preserved. This value must be a URL percent-encoded
+   * string. Note that the string may only contain ASCII characters in the
+   * ISO-8859-1 character set.
    */
   xMsRenameSource?: string;
   /**
@@ -498,8 +504,9 @@ export interface PathCreateOptionalParams extends msRest.RequestOptionsBase {
   /**
    * @member {string} [xMsProperties] Optional.  User-defined properties to be
    * stored with the file or directory, in the format of a comma-separated list
-   * of name and value pairs "n1=v1, n2=v2, ...", where each value is base64
-   * encoded.
+   * of name and value pairs "n1=v1, n2=v2, ...", where each value is a base64
+   * encoded string. Note that the string may only contain ASCII characters in
+   * the ISO-8859-1 character set.
    */
   xMsProperties?: string;
   /**
@@ -623,6 +630,22 @@ export interface PathUpdateOptionalParams extends msRest.RequestOptionsBase {
    */
   retainUncommittedData?: boolean;
   /**
+   * @member {boolean} [close] Azure Storage Events allow applications to
+   * receive notifications when files change. When Azure Storage Events are
+   * enabled, a file changed event is raised. This event has a property
+   * indicating whether this is the final change to distinguish the difference
+   * between an intermediate flush to a file stream and the final close of a
+   * file stream. The close query parameter is valid only when the action is
+   * "flush" and change notifications are enabled. If the value of close is
+   * "true" and the flush operation completes successfully, the service raises
+   * a file change notification with a property indicating that this is the
+   * final update (the file stream has been closed). If "false" a change
+   * notification is raised indicating the file has changed. The default is
+   * false. This query parameter is set to true by the Hadoop ABFS driver to
+   * indicate that the file stream has been closed."
+   */
+  close?: boolean;
+  /**
    * @member {number} [contentLength] Required for "Append Data" and "Flush
    * Data".  Must be 0 for "Flush Data".  Must be the length of the request
    * content in bytes for "Append Data".
@@ -667,13 +690,14 @@ export interface PathUpdateOptionalParams extends msRest.RequestOptionsBase {
   /**
    * @member {string} [xMsProperties] Optional.  User-defined properties to be
    * stored with the file or directory, in the format of a comma-separated list
-   * of name and value pairs "n1=v1, n2=v2, ...", where each value is base64
-   * encoded.  Valid only for the setProperties operation.  If the file or
-   * directory exists, any properties not included in the list will be removed.
-   * All properties are removed if the header is omitted.  To merge new and
-   * existing properties, first get all existing properties and the current
-   * E-Tag, then make a conditional request with the E-Tag and include values
-   * for all properties.
+   * of name and value pairs "n1=v1, n2=v2, ...", where each value is a base64
+   * encoded string. Note that the string may only contain ASCII characters in
+   * the ISO-8859-1 character set. Valid only for the setProperties operation.
+   * If the file or directory exists, any properties not included in the list
+   * will be removed.  All properties are removed if the header is omitted.  To
+   * merge new and existing properties, first get all existing properties and
+   * the current E-Tag, then make a conditional request with the E-Tag and
+   * include values for all properties.
    */
   xMsProperties?: string;
   /**
@@ -935,11 +959,13 @@ export interface PathGetPropertiesOptionalParams extends msRest.RequestOptionsBa
   action?: PathGetPropertiesAction;
   /**
    * @member {boolean} [upn] Optional. Valid only when Hierarchical Namespace
-   * is enabled for the account. If "true", the identity values returned in the
-   * x-ms-owner, x-ms-group, and x-ms-acl response headers will be transformed
-   * from Azure Active Directory Object IDs to User Principal Names.  If
-   * "false", the values will be returned as Azure Active Directory Object IDs.
-   * The default value is false.
+   * is enabled for the account. If "true", the user identity values returned
+   * in the x-ms-owner, x-ms-group, and x-ms-acl response headers will be
+   * transformed from Azure Active Directory Object IDs to User Principal
+   * Names.  If "false", the values will be returned as Azure Active Directory
+   * Object IDs. The default value is false. Note that group and application
+   * Object IDs are not translated because they do not have unique friendly
+   * names.
    */
   upn?: boolean;
   /**
@@ -1259,7 +1285,9 @@ export interface FilesystemGetPropertiesHeaders {
   /**
    * @member {string} [xMsProperties] The user-defined properties associated
    * with the filesystem.  A comma-separated list of name and value pairs in
-   * the format "n1=v1, n2=v2, ...", where each value is base64 encoded.
+   * the format "n1=v1, n2=v2, ...", where each value is a base64 encoded
+   * string. Note that the string may only contain ASCII characters in the
+   * ISO-8859-1 character set.
    */
   xMsProperties?: string;
   /**
@@ -1413,7 +1441,9 @@ export interface PathUpdateHeaders {
   /**
    * @member {string} [xMsProperties] User-defined properties associated with
    * the file or directory, in the format of a comma-separated list of name and
-   * value pairs "n1=v1, n2=v2, ...", where each value is base64 encoded.
+   * value pairs "n1=v1, n2=v2, ...", where each value is a base64 encoded
+   * string. Note that the string may only contain ASCII characters in the
+   * ISO-8859-1 character set.
    */
   xMsProperties?: string;
   /**
@@ -1559,8 +1589,9 @@ export interface PathReadHeaders {
   /**
    * @member {string} [xMsProperties] The user-defined properties associated
    * with the file or directory, in the format of a comma-separated list of
-   * name and value pairs "n1=v1, n2=v2, ...", where each value is base64
-   * encoded.
+   * name and value pairs "n1=v1, n2=v2, ...", where each value is a base64
+   * encoded string. Note that the string may only contain ASCII characters in
+   * the ISO-8859-1 character set.
    */
   xMsProperties?: string;
   /**
@@ -1664,8 +1695,9 @@ export interface PathGetPropertiesHeaders {
   /**
    * @member {string} [xMsProperties] The user-defined properties associated
    * with the file or directory, in the format of a comma-separated list of
-   * name and value pairs "n1=v1, n2=v2, ...", where each value is base64
-   * encoded.
+   * name and value pairs "n1=v1, n2=v2, ...", where each value is a base64
+   * encoded string. Note that the string may only contain ASCII characters in
+   * the ISO-8859-1 character set.
    */
   xMsProperties?: string;
   /**
