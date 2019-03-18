@@ -2,14 +2,7 @@ import { RequestPolicy, RequestPolicyOptions, WebResource } from "ms-rest-js";
 
 import { SharedKeyCredential } from "../credentials/SharedKeyCredential";
 import { HeaderConstants } from "../utils/constants";
-import {
-  getADLSv2PathFromURL,
-  getFileSystemFromURL,
-  getURLPath,
-  getURLPathComponents,
-  getURLQueries,
-  setURLPath,
-} from "../utils/utils.common";
+import { getURLPath, getURLQueries } from "../utils/utils.common";
 import { CredentialPolicy } from "./CredentialPolicy";
 
 /**
@@ -53,26 +46,6 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
    * @memberof SharedKeyCredentialPolicy
    */
   protected signRequest(request: WebResource): WebResource {
-    // By default, dfs swagger and autorest auto generated code will call encodeURIcomponent to encode the path
-    // however, double URI encoding will lead to 403 auth error ( "/" -> "%2F" => "%252F", "$" -> "%24" -> "%2524")
-    // One solution is to add ""x-ms-skip-url-encoding": true" to the "path" parameter in the swagger
-    // Following workaround is to decode first before encode to avoid the double URI encode issue
-
-    const urlPathComponents = getURLPathComponents(request.url);
-    // Make sure the fileSystem is valid
-    if (urlPathComponents.length > 0 && urlPathComponents[0].length > 0) {
-      const fileSystem = getFileSystemFromURL(request.url);
-      const adlsPath = getADLSv2PathFromURL(request.url);
-
-      const decodedPath = [
-        decodeURIComponent(fileSystem),
-        decodeURIComponent(adlsPath)
-      ]
-        .filter(word => word.length > 0)
-        .join("/");
-      request.url = setURLPath(request.url, decodedPath);
-    }
-
     request.headers.set(HeaderConstants.X_MS_DATE, new Date().toUTCString());
     request.headers.remove(HeaderConstants.COOKIE);
 
@@ -210,7 +183,7 @@ export class SharedKeyCredentialPolicy extends CredentialPolicy {
     //     request.url
     //   )}`
     // );
-    const path = encodeURI(getURLPath(request.url) || "/");
+    const path = getURLPath(request.url) || "/";
     // console.log(
     //   `[getCanonicalizedResourceString(), urlPathafterEncode]: ${path}`
     // );

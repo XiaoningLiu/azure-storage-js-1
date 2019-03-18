@@ -1,5 +1,9 @@
 # Changelog
 
+2019.03 Version 12.1.1-preview
+
+* Fixed an issue that [ and ] cannot be properly encoded when they are included in URLs.
+
 2019.01 Version 12.1.0-preview
 
 * Added support for $ started filesystems.

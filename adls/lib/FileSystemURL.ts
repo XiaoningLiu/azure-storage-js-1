@@ -167,7 +167,11 @@ export class FileSystemURL extends StorageURL {
   constructor(url: string, pipeline: Pipeline) {
     super(url, pipeline);
 
-    this.fileSystemName = getFileSystemFromURL(url);
+    // By default, dfs swagger and autorest auto generated code will call encodeURIcomponent to encode the path
+    // however, double URI encoding will lead to 403 auth error ( "/" -> "%2F" => "%252F", "$" -> "%24" -> "%2524")
+    // One solution is to add ""x-ms-skip-url-encoding": true" to the "path" parameter in the swagger
+    // Following workaround is to decode first before encode to avoid the double URI encode issue
+    this.fileSystemName = decodeURIComponent(getFileSystemFromURL(url));
 
     this.fileSystemOperationsContext = new FilesystemOperations(
       this.storageClientContext
