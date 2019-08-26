@@ -56,8 +56,6 @@ export abstract class StorageURL {
     credential: Credential,
     pipelineOptions: INewPipelineOptions = {}
   ): Pipeline {
-    const proxySettings = pipelineOptions.proxySettings || getDefaultProxySettings();
-
     // Order is important. Closer to the API at the top & closer to the network at the bottom.
     // The credential's policy factory must appear close to the wire so it can sign any
     // changes made by other factories (like UniqueRequestIDPolicyFactory)
@@ -66,13 +64,14 @@ export abstract class StorageURL {
     factories.push(new UniqueRequestIDPolicyFactory());
     factories.push(new BrowserPolicyFactory());
     factories.push(deserializationPolicy()); // Default deserializationPolicy is provided by protocol layer
-    if (proxySettings) {
-      factories.push(proxyPolicy(proxySettings));
-    }
     factories.push(new RetryPolicyFactory(pipelineOptions.retryOptions));
     factories.push(new LoggingPolicyFactory());
     factories.push(credential);
 
+    const proxySettings = pipelineOptions.proxySettings || getDefaultProxySettings();
+    if (proxySettings) {
+      factories.push(proxyPolicy(proxySettings));
+    }
     return new Pipeline(factories, {
       HTTPClient: pipelineOptions.httpClient,
       logger: pipelineOptions.logger
