@@ -1,8 +1,8 @@
-import nodeResolve from "rollup-plugin-node-resolve";
-import { uglify } from "rollup-plugin-uglify";
-import replace from "rollup-plugin-replace";
 import commonjs from "rollup-plugin-commonjs";
+import nodeResolve from "rollup-plugin-node-resolve";
+import replace from "rollup-plugin-replace";
 import shim from "rollup-plugin-shim";
+import { uglify } from "rollup-plugin-uglify";
 import visualizer from "rollup-plugin-visualizer";
 
 const version = require("./package.json").version;
@@ -15,7 +15,7 @@ const banner = [
 
 const nodeRollupConfigFactory = () => {
   return {
-    external: ["ms-rest-js", "crypto", "fs", "events", "os", "stream"],
+    external: ["@azure/ms-rest-js", "crypto", "fs", "events", "os", "stream"],
     input: "dist-esm/lib/index.js",
     output: {
       file: "dist/index.js",

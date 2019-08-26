@@ -1,4 +1,5 @@
-import { deserializationPolicy, RequestPolicyFactory } from "ms-rest-js";
+import { deserializationPolicy, getDefaultProxySettings, proxyPolicy, RequestPolicyFactory } from "@azure/ms-rest-js";
+import { ProxySettings } from "@azure/ms-rest-js/es/lib/serviceClient";
 
 import { BrowserPolicyFactory } from "./BrowserPolicyFactory";
 import { Credential } from "./credentials/Credential";
@@ -6,10 +7,7 @@ import { DataLakeStorageClientContext } from "./generated/lib/dataLakeStorageCli
 import { LoggingPolicyFactory } from "./LoggingPolicyFactory";
 import { IHTTPClient, IHTTPPipelineLogger, Pipeline } from "./Pipeline";
 import { IRetryOptions, RetryPolicyFactory } from "./RetryPolicyFactory";
-import {
-  ITelemetryOptions,
-  TelemetryPolicyFactory
-} from "./TelemetryPolicyFactory";
+import { ITelemetryOptions, TelemetryPolicyFactory } from "./TelemetryPolicyFactory";
 import { UniqueRequestIDPolicyFactory } from "./UniqueRequestIDPolicyFactory";
 import { SERVICE_VERSION } from "./utils/constants";
 import { getURLBaseURI } from "./utils/utils.common";
@@ -34,6 +32,8 @@ export interface INewPipelineOptions {
 
   logger?: IHTTPPipelineLogger;
   httpClient?: IHTTPClient;
+
+  proxySettings?: ProxySettings;
 }
 
 /**
@@ -56,6 +56,8 @@ export abstract class StorageURL {
     credential: Credential,
     pipelineOptions: INewPipelineOptions = {}
   ): Pipeline {
+    const proxySettings = pipelineOptions.proxySettings || getDefaultProxySettings();
+
     // Order is important. Closer to the API at the top & closer to the network at the bottom.
     // The credential's policy factory must appear close to the wire so it can sign any
     // changes made by other factories (like UniqueRequestIDPolicyFactory)
@@ -64,6 +66,9 @@ export abstract class StorageURL {
     factories.push(new UniqueRequestIDPolicyFactory());
     factories.push(new BrowserPolicyFactory());
     factories.push(deserializationPolicy()); // Default deserializationPolicy is provided by protocol layer
+    if (proxySettings) {
+      factories.push(proxyPolicy(proxySettings));
+    }
     factories.push(new RetryPolicyFactory(pipelineOptions.retryOptions));
     factories.push(new LoggingPolicyFactory());
     factories.push(credential);

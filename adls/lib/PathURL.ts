@@ -1,4 +1,4 @@
-import { HttpRequestBody, isNode, TransferProgressEvent } from "ms-rest-js";
+import { HttpRequestBody, isNode, TransferProgressEvent } from "@azure/ms-rest-js";
 
 import { Aborter } from "./Aborter";
 import { FileSystemURL } from "./FileSystemURL";

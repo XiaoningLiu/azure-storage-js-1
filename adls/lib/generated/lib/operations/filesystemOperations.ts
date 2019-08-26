@@ -8,7 +8,7 @@
  * regenerated.
  */
 
-import * as msRest from "ms-rest-js";
+import * as msRest from "@azure/ms-rest-js";
 import * as Models from "../models";
 import * as Mappers from "../models/filesystemOperationsMappers";
 import * as Parameters from "../models/parameters";
@@ -42,7 +42,7 @@ export class FilesystemOperations {
    * @param callback The callback
    */
   list(options: Models.FilesystemListOptionalParams, callback: msRest.ServiceCallback<Models.FilesystemList>): void;
-  list(options?: Models.FilesystemListOptionalParams, callback?: msRest.ServiceCallback<Models.FilesystemList>): Promise<Models.FilesystemListResponse> {
+  list(options?: Models.FilesystemListOptionalParams | msRest.ServiceCallback<Models.FilesystemList>, callback?: msRest.ServiceCallback<Models.FilesystemList>): Promise<Models.FilesystemListResponse> {
     return this.client.sendOperationRequest(
       {
         options
@@ -80,7 +80,7 @@ export class FilesystemOperations {
    * @param callback The callback
    */
   create(filesystem: string, options: Models.FilesystemCreateOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  create(filesystem: string, options?: Models.FilesystemCreateOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemCreateResponse> {
+  create(filesystem: string, options?: Models.FilesystemCreateOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemCreateResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
@@ -120,7 +120,7 @@ export class FilesystemOperations {
    * @param callback The callback
    */
   setProperties(filesystem: string, options: Models.FilesystemSetPropertiesOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  setProperties(filesystem: string, options?: Models.FilesystemSetPropertiesOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemSetPropertiesResponse> {
+  setProperties(filesystem: string, options?: Models.FilesystemSetPropertiesOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemSetPropertiesResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
@@ -158,7 +158,7 @@ export class FilesystemOperations {
    * @param callback The callback
    */
   getProperties(filesystem: string, options: Models.FilesystemGetPropertiesOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  getProperties(filesystem: string, options?: Models.FilesystemGetPropertiesOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemGetPropertiesResponse> {
+  getProperties(filesystem: string, options?: Models.FilesystemGetPropertiesOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemGetPropertiesResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
@@ -204,7 +204,7 @@ export class FilesystemOperations {
    * @param callback The callback
    */
   deleteMethod(filesystem: string, options: Models.FilesystemDeleteMethodOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  deleteMethod(filesystem: string, options?: Models.FilesystemDeleteMethodOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemDeleteResponse> {
+  deleteMethod(filesystem: string, options?: Models.FilesystemDeleteMethodOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.FilesystemDeleteResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,

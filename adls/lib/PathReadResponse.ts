@@ -1,4 +1,4 @@
-import { HttpResponse, isNode, TransferProgressEvent } from "ms-rest-js";
+import { HttpResponse, isNode, TransferProgressEvent } from "@azure/ms-rest-js";
 
 import { Aborter } from "./Aborter";
 import { PathReadHeaders, PathReadResponse as IPathReadResponse } from "./generated/lib/models";

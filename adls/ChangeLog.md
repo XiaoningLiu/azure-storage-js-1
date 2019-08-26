@@ -1,5 +1,10 @@
 # Changelog
 
+2019.08 Version 12.2.0-preview
+
+* Updated dependency from `ms-rest-js` to `@azure/ms-rest-js` to replace `axios` with `node-fetch`.
+* Exposed `proxySettings` for options of `StorageURL.newPipeline()` to support proxy settings.
+
 2019.03 Version 12.1.1-preview
 
 * Fixed an issue that [ and ] cannot be properly encoded when they are included in URLs.

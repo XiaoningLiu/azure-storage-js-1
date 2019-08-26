@@ -1,4 +1,4 @@
-import { AbortSignalLike, isNode } from "ms-rest-js";
+import { AbortSignalLike, isNode } from "@azure/ms-rest-js";
 
 /**
  * An aborter instance implements AbortSignal interface, can abort HTTP requests.
@@ -66,11 +66,11 @@ export class Aborter implements AbortSignalLike {
   }
 
   /**
-   * Creates a new Aborter instance with timeout in million-seconds.
+   * Creates a new Aborter instance with timeout in milliseconds.
    * Set parameter timeout to 0 will not create a timer.
    *
    * @static
-   * @param {number} {timeout} in million-seconds
+   * @param {number} {timeout} in milliseconds
    * @returns {Aborter}
    * @memberof Aborter
    */
@@ -83,16 +83,14 @@ export class Aborter implements AbortSignalLike {
    *
    * @memberof Aborter
    */
-  public onabort?: (ev?: Event) => any;
+  public onabort: ((this: AbortSignalLike, ev: any) => any) | null = null;
 
   // tslint:disable-next-line:variable-name
   private _aborted: boolean = false;
   private timer?: any;
   private readonly parent?: Aborter;
   private readonly children: Aborter[] = []; // When child object calls dispose(), remove child from here
-  private readonly abortEventListeners: Array<
-    (this: AbortSignalLike, ev?: any) => any
-  > = [];
+  private readonly abortEventListeners: ((this: AbortSignalLike, ev?: any) => any)[] = [];
   // Pipeline proxies need to use "abortSignal as Aborter" in order to access non AbortSignalLike methods
   // immutable primitive types
   private readonly key?: string;
@@ -164,10 +162,7 @@ export class Aborter implements AbortSignalLike {
    * @returns {Aborter}
    * @memberof Aborter
    */
-  public withValue(
-    key: string,
-    value?: string | number | boolean | null
-  ): Aborter {
+  public withValue(key: string, value?: string | number | boolean | null): Aborter {
     const childCancelContext = new Aborter(this, 0, key, value);
     this.children.push(childCancelContext);
     return childCancelContext;
@@ -184,11 +179,7 @@ export class Aborter implements AbortSignalLike {
    * @memberof Aborter
    */
   public getValue(key: string): string | number | boolean | null | undefined {
-    for (
-      let parent: Aborter | undefined = this;
-      parent;
-      parent = parent.parent
-    ) {
+    for (let parent: Aborter | undefined = this; parent; parent = parent.parent) {
       if (parent.key === key) {
         return parent.value;
       }
@@ -213,14 +204,14 @@ export class Aborter implements AbortSignalLike {
     this.cancelTimer();
 
     if (this.onabort) {
-      this.onabort.call(this);
+      this.onabort.call(this, { type: "abort" } as any);
     }
 
-    this.abortEventListeners.forEach(listener => {
-      listener.call(this);
+    this.abortEventListeners.forEach((listener) => {
+      listener.call(this, { type: "abort" } as any);
     });
 
-    this.children.forEach(child => child.cancelByParent());
+    this.children.forEach((child) => child.cancelByParent());
 
     this._aborted = true;
   }
@@ -274,6 +265,10 @@ export class Aborter implements AbortSignalLike {
     if (index > -1) {
       this.abortEventListeners.splice(index, 1);
     }
+  }
+
+  public dispatchEvent(): boolean {
+    throw new Error("Method not implemented.");
   }
 
   private cancelByParent() {

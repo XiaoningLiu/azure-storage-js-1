@@ -8,7 +8,7 @@
  * regenerated.
  */
 
-import * as msRest from "ms-rest-js";
+import * as msRest from "@azure/ms-rest-js";
 import * as Models from "./models";
 
 const packageName = "azure-storage-adls";
@@ -25,12 +25,17 @@ export class DataLakeStorageClientContext extends msRest.ServiceClient {
    * @param [options] The parameter options
    */
   constructor(accountName: string, options?: Models.DataLakeStorageClientOptions) {
-    if (accountName === null || accountName === undefined) {
-      throw new Error('\'accountName\' cannot be null.');
+    if (accountName == undefined) {
+      throw new Error("'accountName' cannot be null.");
     }
 
     if (!options) {
       options = {};
+    }
+
+    if (!options.userAgent) {
+      const defaultUserAgent = msRest.getDefaultUserAgentValue();
+      options.userAgent = `${packageName}/${packageVersion} ${defaultUserAgent}`;
     }
 
     super(undefined, options);
@@ -39,12 +44,10 @@ export class DataLakeStorageClientContext extends msRest.ServiceClient {
     this.baseUri = "http://{accountName}.{dnsSuffix}";
     this.requestContentType = "application/json; charset=utf-8";
     this.accountName = accountName;
-
-    this.addUserAgentInfo(`${packageName}/${packageVersion}`);
-    if(options.xMsVersion !== null && options.xMsVersion !== undefined) {
+    if (options.xMsVersion !== null && options.xMsVersion !== undefined) {
       this.xMsVersion = options.xMsVersion;
     }
-    if(options.dnsSuffix !== null && options.dnsSuffix !== undefined) {
+    if (options.dnsSuffix !== null && options.dnsSuffix !== undefined) {
       this.dnsSuffix = options.dnsSuffix;
     }
   }

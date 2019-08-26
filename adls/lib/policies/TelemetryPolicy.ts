@@ -5,8 +5,8 @@ import {
   isNode,
   RequestPolicy,
   RequestPolicyOptions,
-  WebResource
-} from "ms-rest-js";
+  WebResource,
+} from "@azure/ms-rest-js";
 
 import { HeaderConstants } from "../utils/constants";
 

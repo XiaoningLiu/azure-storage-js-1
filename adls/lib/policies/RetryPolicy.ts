@@ -7,8 +7,8 @@ import {
   RequestPolicyFactory,
   RequestPolicyOptions,
   RestError,
-  WebResource
-} from "ms-rest-js";
+  WebResource,
+} from "@azure/ms-rest-js";
 
 import { IRetryOptions } from "../RetryPolicyFactory";
 import { URLConstants } from "../utils/constants";

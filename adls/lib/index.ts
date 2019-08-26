@@ -1,4 +1,4 @@
-import { RestError } from "ms-rest-js";
+import { RestError } from "@azure/ms-rest-js";
 
 import * as Models from "../lib/generated/lib/models";
 

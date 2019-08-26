@@ -13,4 +13,5 @@ output-folder: ../lib/generated
 input-file: ./azure_dfs_swagger.json
 model-date-time-as-string: true
 optional-response-headers: true
+enum-types: true
 ```

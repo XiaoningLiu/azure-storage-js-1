@@ -4,8 +4,8 @@ import {
   HttpPipelineLogLevel,
   RequestPolicy,
   RequestPolicyOptions,
-  WebResource
-} from "ms-rest-js";
+  WebResource,
+} from "@azure/ms-rest-js";
 
 import { IRequestLogOptions } from "../LoggingPolicyFactory";
 import { HTTPURLConnection, URLConstants } from "../utils/constants";

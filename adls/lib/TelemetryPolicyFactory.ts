@@ -1,9 +1,4 @@
-import {
-  isNode,
-  RequestPolicy,
-  RequestPolicyFactory,
-  RequestPolicyOptions
-} from "ms-rest-js";
+import { isNode, RequestPolicy, RequestPolicyFactory, RequestPolicyOptions } from "@azure/ms-rest-js";
 import * as os from "os";
 
 import { TelemetryPolicy } from "./policies/TelemetryPolicy";

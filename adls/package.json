@@ -1,6 +1,6 @@
 {
   "name": "@azure/storage-adls",
-  "version": "12.1.1-preview",
+  "version": "12.2.0-preview",
   "description": "Microsoft Azure Storage SDK for JavaScript - ADLSv2",
   "main": "./dist/index.js",
   "module": "./dist-esm/lib/index.js",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "events": "3.0.0",
-    "ms-rest-js": "1.0.439",
+    "@azure/ms-rest-js": "2.0.4",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
@@ -56,7 +56,7 @@
     "build:test": "rollup -c rollup.test.config.js",
     "build:nodebrowser": "rollup -c",
     "build:es6": "tsc -p tsconfig.json",
-    "build:autorest": "autorest ./swagger/README.md --typescript --use=@microsoft.azure/autorest.typescript@2.0.559",
+    "build:autorest": "autorest ./swagger/README.md --typescript --use=@microsoft.azure/autorest.typescript@4.2.2",
     "build:browserzip": "gulp zip",
     "refreshVSToken": "vsts-npm-auth -config .npmrc",
     "prepare": "npm run build && npm run refreshVSToken",

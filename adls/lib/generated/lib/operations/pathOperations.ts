@@ -8,7 +8,7 @@
  * regenerated.
  */
 
-import * as msRest from "ms-rest-js";
+import * as msRest from "@azure/ms-rest-js";
 import * as Models from "../models";
 import * as Mappers from "../models/pathOperationsMappers";
 import * as Parameters from "../models/parameters";
@@ -63,7 +63,7 @@ export class PathOperations {
    * @param callback The callback
    */
   list(recursive: boolean, filesystem: string, options: Models.PathListOptionalParams, callback: msRest.ServiceCallback<Models.PathList>): void;
-  list(recursive: boolean, filesystem: string, options?: Models.PathListOptionalParams, callback?: msRest.ServiceCallback<Models.PathList>): Promise<Models.PathListResponse> {
+  list(recursive: boolean, filesystem: string, options?: Models.PathListOptionalParams | msRest.ServiceCallback<Models.PathList>, callback?: msRest.ServiceCallback<Models.PathList>): Promise<Models.PathListResponse> {
     return this.client.sendOperationRequest(
       {
         recursive,
@@ -101,7 +101,7 @@ export class PathOperations {
    * @param callback The callback
    */
   create(filesystem: string, path: string, options: Models.PathCreateOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  create(filesystem: string, path: string, options?: Models.PathCreateOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.PathCreateResponse> {
+  create(filesystem: string, path: string, options?: Models.PathCreateOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.PathCreateResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
@@ -162,7 +162,7 @@ export class PathOperations {
    * @param callback The callback
    */
   update(action: Models.PathUpdateAction, filesystem: string, path: string, options: Models.PathUpdateOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  update(action: Models.PathUpdateAction, filesystem: string, path: string, options?: Models.PathUpdateOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.PathUpdateResponse> {
+  update(action: Models.PathUpdateAction, filesystem: string, path: string, options?: Models.PathUpdateOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.PathUpdateResponse> {
     return this.client.sendOperationRequest(
       {
         action,
@@ -229,7 +229,7 @@ export class PathOperations {
    * @param callback The callback
    */
   lease(xMsLeaseAction: Models.PathLeaseAction, filesystem: string, path: string, options: Models.PathLeaseOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  lease(xMsLeaseAction: Models.PathLeaseAction, filesystem: string, path: string, options?: Models.PathLeaseOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.PathLeaseResponse> {
+  lease(xMsLeaseAction: Models.PathLeaseAction, filesystem: string, path: string, options?: Models.PathLeaseOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.PathLeaseResponse> {
     return this.client.sendOperationRequest(
       {
         xMsLeaseAction,
@@ -266,7 +266,7 @@ export class PathOperations {
    * @param callback The callback
    */
   read(filesystem: string, path: string, options: Models.PathReadOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  read(filesystem: string, path: string, options?: Models.PathReadOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.PathReadResponse> {
+  read(filesystem: string, path: string, options?: Models.PathReadOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.PathReadResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
@@ -303,7 +303,7 @@ export class PathOperations {
    * @param callback The callback
    */
   getProperties(filesystem: string, path: string, options: Models.PathGetPropertiesOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  getProperties(filesystem: string, path: string, options?: Models.PathGetPropertiesOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.PathGetPropertiesResponse> {
+  getProperties(filesystem: string, path: string, options?: Models.PathGetPropertiesOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.PathGetPropertiesResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
@@ -338,7 +338,7 @@ export class PathOperations {
    * @param callback The callback
    */
   deleteMethod(filesystem: string, path: string, options: Models.PathDeleteMethodOptionalParams, callback: msRest.ServiceCallback<void>): void;
-  deleteMethod(filesystem: string, path: string, options?: Models.PathDeleteMethodOptionalParams, callback?: msRest.ServiceCallback<void>): Promise<Models.PathDeleteResponse> {
+  deleteMethod(filesystem: string, path: string, options?: Models.PathDeleteMethodOptionalParams | msRest.ServiceCallback<void>, callback?: msRest.ServiceCallback<void>): Promise<Models.PathDeleteResponse> {
     return this.client.sendOperationRequest(
       {
         filesystem,
